@@ -5,7 +5,7 @@ import React from 'react'
 
 const CTA = () => {
   return (
-    <Container className='flex flex-col items-center justify-center'>
+    <Container className='flex flex-col items-center justify-center mb-5'>
       <Image
         src='/assets/landing-page/marketing.png'
         alt='cta_image'

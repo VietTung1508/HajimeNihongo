@@ -5,7 +5,7 @@ const Footer = () => {
   return (
     <div className='w-full'>
       <Container>
-        <Separator className='my-5' />
+        <Separator className='mb-5' />
         <div className='flex justify-between gap-2'>
           <div className='space-y-1'>
             <div className='text-[#be4e47] text-2xl'>Hajime Nihongo</div>

@@ -15,6 +15,9 @@ export class User {
   email!: string
 
   @Property()
+  username!: string
+
+  @Property({nullable: true})
   phone_number!: string
 
   @Property()

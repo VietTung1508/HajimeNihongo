@@ -1,8 +1,12 @@
 import express from 'express'
 import cors from 'cors'
 import {authRoutes} from './routes'
+import {setupSwagger} from './config/swagger'
+import 'dotenv/config'
 
 export const app = express()
+
+app.use(express.json())
 
 app.use(
   cors({
@@ -10,5 +14,7 @@ app.use(
     credentials: true,
   }),
 )
-app.use('/api/auth', authRoutes)
-app.use(express.json())
+
+app.use('/auth', authRoutes)
+
+setupSwagger(app)
