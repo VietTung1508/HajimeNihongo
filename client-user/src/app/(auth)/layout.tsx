@@ -1,0 +1,18 @@
+'use client'
+
+import {useEffect} from 'react'
+import {useRouter} from 'next/navigation'
+import {useAuth} from '@/components/features/auth/hook/useAuth'
+
+export default function AuthLayout({children}: {children: React.ReactNode}) {
+  const router = useRouter()
+  const {isAuthenticated} = useAuth()
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace('/dashboard')
+    }
+  }, [isAuthenticated, router])
+
+  return <>{children}</>
+}

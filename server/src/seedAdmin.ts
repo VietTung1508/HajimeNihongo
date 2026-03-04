@@ -10,6 +10,7 @@ async function seedAdmin() {
   const hashed = await argon2.hash('admin123')
   const admin = em.create(User, {
     email: 'admin@hajime.com',
+    username: 'Tung',
     phone_number: '0123456789',
     password: hashed,
     role: UserRole.ADMIN,
