@@ -6,11 +6,13 @@ import {useAuth} from '@/components/features/auth/hook/useAuth'
 
 export default function AuthLayout({children}: {children: React.ReactNode}) {
   const router = useRouter()
-  const {isAuthenticated} = useAuth()
+  const {isAuthenticated, alreadyOnboard} = useAuth()
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.replace('/dashboard')
+      if (alreadyOnboard) return router.replace('/dashboard')
+
+      router.replace('/onboarding')
     }
   }, [isAuthenticated, router])
 

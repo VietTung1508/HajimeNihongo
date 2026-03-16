@@ -6,18 +6,24 @@ import {
   setUser,
   getAccessToken,
   getUser,
+  setAlreadyOnboarding,
+  getAlreadyOnboarding,
 } from '@/lib/api/apiClient'
 import {
   LoginRequest,
   RegisterRequest,
 } from '@/components/features/auth/types/type'
 import {authApi} from '@/components/features/auth/services/api'
+import {CreateOnboardingRequest} from '@/components/features/onboarding/types'
+import {onboardingApi} from '@/components/features/onboarding/services/api'
 
 interface AuthState {
   isAuthenticated: boolean
   loading: boolean
   error: string | null
   user: {email: string; username: string} | null
+  initialized: boolean
+  alreadyOnboard: boolean
 }
 
 const initialState: AuthState = {
@@ -25,6 +31,8 @@ const initialState: AuthState = {
   loading: false,
   error: null,
   user: null,
+  initialized: false,
+  alreadyOnboard: false,
 }
 
 export const registerThunk = createAsyncThunk(
@@ -51,11 +59,29 @@ export const loginThunk = createAsyncThunk(
 
       setAccessToken(response.accessToken)
       setRefreshToken(response.refreshToken)
+      setAlreadyOnboarding(response.onboardingCompleted)
       setUser(response.user)
 
       return response
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Login failed')
+    }
+  },
+)
+
+export const onboardingThunk = createAsyncThunk(
+  '/onboarding',
+  async (data: CreateOnboardingRequest, {rejectWithValue}) => {
+    try {
+      const response = await onboardingApi.createOnboardingData(data)
+
+      setAlreadyOnboarding(response.onboardingCompleted)
+
+      return response
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || 'Onboarding failed',
+      )
     }
   },
 )
@@ -75,11 +101,18 @@ const authSlice = createSlice({
     hydrateAuth: (state) => {
       const token = getAccessToken()
       const user = getUser()
+      const alreadyOnboarding = getAlreadyOnboarding()
 
       if (token && user) {
         state.isAuthenticated = true
         state.user = user
       }
+
+      if (alreadyOnboarding) {
+        state.alreadyOnboard = true
+      }
+
+      state.initialized = true
     },
   },
   extraReducers: (builder) => {
@@ -92,6 +125,7 @@ const authSlice = createSlice({
         state.loading = false
         state.isAuthenticated = true
         state.user = action.payload.user
+        state.alreadyOnboard = action.payload.onboardingCompleted
       })
       .addCase(loginThunk.rejected, (state, action) => {
         state.loading = false
@@ -110,6 +144,9 @@ const authSlice = createSlice({
       .addCase(registerThunk.rejected, (state, action) => {
         state.loading = false
         state.error = action.payload as string
+      })
+      .addCase(onboardingThunk.fulfilled, (state) => {
+        state.alreadyOnboard = true
       })
   },
 })

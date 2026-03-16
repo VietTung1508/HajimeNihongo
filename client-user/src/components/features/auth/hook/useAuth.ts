@@ -5,9 +5,8 @@ import {loginThunk, registerThunk} from '@/redux/auth/authSlice'
 
 export const useAuth = () => {
   const dispatch = useAppDispatch()
-  const {loading, error, isAuthenticated} = useAppSelector(
-    (state) => state.auth,
-  )
+  const {loading, error, isAuthenticated, initialized, alreadyOnboard} =
+    useAppSelector((state) => state.auth)
 
   const register = async (data: RegisterRequest) => {
     const resultAction = await dispatch(registerThunk(data))
@@ -49,7 +48,9 @@ export const useAuth = () => {
     register,
     login,
     loading,
+    alreadyOnboard,
     error,
     isAuthenticated,
+    initialized,
   }
 }
