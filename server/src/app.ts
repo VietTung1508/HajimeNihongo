@@ -1,6 +1,6 @@
 import express from 'express'
 import cors from 'cors'
-import {authRoutes} from './routes'
+import {authRoutes, onboardingRoutes} from './routes'
 import {setupSwagger} from './config/swagger'
 import 'dotenv/config'
 
@@ -16,5 +16,6 @@ app.use(
 )
 
 app.use('/auth', authRoutes)
+app.use('/onboarding', onboardingRoutes)
 
 setupSwagger(app)

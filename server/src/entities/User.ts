@@ -1,10 +1,7 @@
-import {Entity, PrimaryKey, Property, Enum} from '@mikro-orm/core'
+import {Entity, PrimaryKey, Property, Enum, OneToOne} from '@mikro-orm/core'
 import {v4 as uuid} from 'uuid'
-
-export enum UserRole {
-  USER = 'USER',
-  ADMIN = 'ADMIN',
-}
+import {UserRole} from '../enums/auth.enum'
+import {UserOnboarding} from './UserOnboading'
 
 @Entity()
 export class User {
@@ -28,4 +25,9 @@ export class User {
 
   @Property({onCreate: () => new Date()})
   createdAt!: Date
+
+  @OneToOne(() => UserOnboarding, (onboarding) => onboarding.user, {
+    nullable: true,
+  })
+  onboarding?: UserOnboarding
 }

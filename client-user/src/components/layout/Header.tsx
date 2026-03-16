@@ -31,9 +31,13 @@ const Header = () => {
             <h2 className='text-lg font-semibold text-white'>Hajime Nihongo</h2>
           </Link>
           <div className='items-center text-white flex gap-6'>
-            <a href='#testimonials'>Why it works</a>
-            <a href='#testimonials'>Testimonials</a>
-            <a href='#testimonials'>Pricing</a>
+            {!isAuthenticated && (
+              <>
+                <a href='#testimonials'>Why it works</a>
+                <a href='#testimonials'>Testimonials</a>
+                <a href='#testimonials'>Pricing</a>
+              </>
+            )}
             {!isAuthenticated ? (
               <>
                 <Link href='/signup'>

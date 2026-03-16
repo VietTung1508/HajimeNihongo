@@ -6,6 +6,7 @@ const API_TIMEOUT = 30000
 const ACCESS_TOKEN_KEY = 'access_token'
 const REFRESH_TOKEN_KEY = 'refresh_token'
 const USER_KEY = 'user'
+const ONBOARDING_KEY = 'already_onboarding'
 
 // Axios instance
 const apiClient = axios.create({
@@ -158,3 +159,28 @@ export const isAuthenticated = (): boolean => {
 }
 
 export {apiClient}
+
+export const setAlreadyOnboarding = (value: boolean) => {
+  if (typeof window === 'undefined') return
+
+  try {
+    Cookies.set(ONBOARDING_KEY, JSON.stringify(value), {
+      expires: 7,
+      sameSite: 'strict',
+    })
+  } catch (error) {
+    console.error('Error setting onboarding status:', error)
+  }
+}
+
+export const getAlreadyOnboarding = (): boolean | null => {
+  if (typeof window === 'undefined') return null
+
+  try {
+    const value = Cookies.get(ONBOARDING_KEY)
+    return value ? JSON.parse(value) : null
+  } catch (error) {
+    console.error('Error getting onboarding status:', error)
+    return null
+  }
+}
