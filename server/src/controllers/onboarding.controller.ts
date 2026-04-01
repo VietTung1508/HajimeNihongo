@@ -6,8 +6,6 @@ import {UserOnboarding} from '../entities/UserOnboading'
 
 export async function createOnboarding(req: Request, res: Response) {
   try {
-    console.log(req)
-
     const userId = req.user?.id
 
     if (!userId) {
