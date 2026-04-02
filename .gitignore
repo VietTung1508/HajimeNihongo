@@ -49,5 +49,16 @@ coverage/
 tmp/
 temp/
 
+# Claude Code
+.claude/
+CLAUDE.md
+
+# Project docs
+docs/
+
 # Optional cache
 .cache/
+
+# MikroORM snapshot files
+server/migrations/*.json
+server/migrations/.snapshot-*
