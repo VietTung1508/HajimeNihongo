@@ -14,10 +14,8 @@ interface KanaAccordionProps {
 
 export function KanaAccordion({id, title, content}: KanaAccordionProps) {
   return (
-    // id={id} enables getElementById() in useScrollSpy to track which section is in view
     <AccordionItem value={String(id)} id={String(id)}>
       <AccordionTrigger
-        // data-section-header is the scroll target — scrolling lands on the header, not content
         data-section-header={String(id)}
         className='text-base font-medium hover:no-underline'
       >

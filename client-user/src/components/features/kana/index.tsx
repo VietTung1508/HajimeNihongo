@@ -28,7 +28,6 @@ export function KanaMain() {
     )
     if (!section) return
 
-    // Set active immediately (before scroll spy catches up)
     setActiveSectionId(sectionId)
 
     setOpenItems(prev => {
@@ -38,7 +37,6 @@ export function KanaMain() {
       return [...next]
     })
 
-    // Scroll after accordion has had a tick to open
     setTimeout(() => {
       const trigger = document.querySelector(
         `[data-section-header="${sectionId}"]`,
