@@ -1,8 +1,9 @@
 import {defineConfig} from '@mikro-orm/postgresql'
 import {PostgreSqlDriver} from '@mikro-orm/postgresql'
+import {GrammarExample} from './entities/GrammarExample'
 
 export default defineConfig({
-  entities: ['dist/entities'],
+  entities: ['dist/entities', GrammarExample],
   entitiesTs: ['src/entities'],
   dbName: 'hajimenihongo',
   user: 'admin',
