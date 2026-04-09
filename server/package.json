@@ -13,7 +13,13 @@
     "mikro:migrate": "npm run mikro-create && npm run mikro-up",
     "enrich:jlpt": "ts-node src/scripts/enrich-jlpt.ts",
     "enrich:common:jmdict": "ts-node src/scripts/enrich-common.ts",
-    "enrich:common:example": "ts-node src/scripts/import-examples.ts"
+    "enrich:common:example": "ts-node src/scripts/import-examples.ts",
+    "import:grammar": "ts-node src/scripts/import-grammar.ts",
+    "scrape:grammar": "ts-node src/scripts/scrape-grammar.ts",
+    "enrich:grammar:selimjb": "ts-node src/scripts/enrich-grammar-from-selimjb.ts",
+    "enrich:grammar:joshl": "ts-node src/scripts/enrich-grammar-from-joshl.ts",
+    "enrich:grammar:edewakaru": "ts-node src/scripts/enrich-grammar-from-edewakaru.ts",
+    "enrich:grammar:ollama": "ts-node src/scripts/enrich-grammar-from-claude.ts"
   },
   "keywords": [],
   "author": "",
