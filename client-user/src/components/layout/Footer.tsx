@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import {Separator} from '../ui/separator'
 import Container from './Container'
 
@@ -22,14 +23,6 @@ const Footer = () => {
               <li className='cursor-pointer hover:text-red-500'>About Us</li>
               <li className='cursor-pointer hover:text-red-500'>
                 Acknowledgements
-              </li>
-            </ul>
-            <ul className='space-y-2'>
-              <li className='text-[#be4e47] font-bold cursor-default'>
-                Japanese
-              </li>
-              <li className='cursor-pointer hover:text-red-500'>
-                Hiragana & Katakana
               </li>
             </ul>
             <ul className='space-y-2'>

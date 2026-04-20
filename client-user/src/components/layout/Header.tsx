@@ -26,7 +26,7 @@ const Header = () => {
       }`}
     >
       <Container>
-        <div className='flex items-center justify-between min-h-10 py-1.5'>
+        <div className='flex items-center justify-between min-h-10 py-4'>
           <Link href='/'>
             <h2 className='text-lg font-semibold text-white'>Hajime Nihongo</h2>
           </Link>
