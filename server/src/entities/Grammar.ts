@@ -1,4 +1,11 @@
-import {Entity, PrimaryKey, Property} from '@mikro-orm/core'
+import {
+  Entity,
+  PrimaryKey,
+  Property,
+  OneToMany,
+  Collection,
+} from '@mikro-orm/core'
+import {GrammarExample} from './GrammarExample'
 
 @Entity()
 export class Grammar {
@@ -49,4 +56,7 @@ export class Grammar {
 
   @Property({nullable: true})
   meaningHint?: string
+
+  @OneToMany(() => GrammarExample, (e) => e.grammar)
+  examples = new Collection<GrammarExample>(this)
 }

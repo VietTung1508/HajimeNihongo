@@ -6,7 +6,7 @@ export class Meaning {
   @PrimaryKey()
   id!: number
 
-  @Property({type: 'text'})
+  @Property({type: 'text', fieldName: 'text'})
   text!: string
 
   @ManyToOne(() => Word)

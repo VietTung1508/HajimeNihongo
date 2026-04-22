@@ -63,14 +63,16 @@ export const getGrammarDetail = async (req: Request, res: Response) => {
     const em = DI.em
     const {id} = req.params
 
-    const grammar = await em.findOne(Grammar, {id: Number(id)})
+    const grammar = await em.findOne(
+      Grammar,
+      {id: Number(id)},
+      {populate: ['examples']},
+    )
     if (!grammar) {
       return res.status(404).json({message: 'Grammar point not found'})
     }
 
-    const examples = await em.find(GrammarExample, {grammar: grammar})
-
-    res.json({...grammar, examples})
+    res.json(grammar)
   } catch (error) {
     console.error('Failed to fetch grammar detail:', error)
     res.status(500).json({message: 'Internal server error'})
