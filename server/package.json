@@ -15,11 +15,14 @@
     "enrich:common:jmdict": "ts-node src/scripts/enrich-common.ts",
     "enrich:common:example": "ts-node src/scripts/import-examples.ts",
     "import:grammar": "ts-node src/scripts/import-grammar.ts",
+    "import:grammar:examples": "ts-node src/scripts/import-grammar-examples.ts",
     "scrape:grammar": "ts-node src/scripts/scrape-grammar.ts",
     "enrich:grammar:selimjb": "ts-node src/scripts/enrich-grammar-from-selimjb.ts",
     "enrich:grammar:joshl": "ts-node src/scripts/enrich-grammar-from-joshl.ts",
     "enrich:grammar:edewakaru": "ts-node src/scripts/enrich-grammar-from-edewakaru.ts",
-    "enrich:grammar:ollama": "ts-node src/scripts/enrich-grammar-from-claude.ts"
+    "enrich:grammar:ollama": "ts-node src/scripts/enrich-grammar-from-claude.ts",
+    "diagnose:examples": "ts-node src/scripts/diagnose-examples.ts",
+    "examples:fix": "ts-node src/scripts/reimport-examples-optimized.ts"
   },
   "keywords": [],
   "author": "",

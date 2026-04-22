@@ -1,6 +1,6 @@
 import express from 'express'
 import cors from 'cors'
-import {authRoutes, onboardingRoutes, kanaRoutes, grammarRoutes} from './routes'
+import {authRoutes, onboardingRoutes, kanaRoutes, grammarRoutes, wordsRoutes, audioRoutes} from './routes'
 import {setupSwagger} from './config/swagger'
 import 'dotenv/config'
 
@@ -19,5 +19,7 @@ app.use('/auth', authRoutes)
 app.use('/onboarding', onboardingRoutes)
 app.use('/kana', kanaRoutes)
 app.use('/grammar', grammarRoutes)
+app.use('/words', wordsRoutes)
+app.use('/audio', audioRoutes)
 
 setupSwagger(app)
