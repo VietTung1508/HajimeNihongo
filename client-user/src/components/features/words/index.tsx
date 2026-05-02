@@ -4,10 +4,11 @@ import {useState, useEffect, useRef} from 'react'
 import {WordCard} from './components/WordCard'
 import {WordCardSkeleton} from './components/WordCardSkeleton'
 import {WordListHeader} from './components/WordListHeader'
-import {WordPagination} from './components/WordPagination'
+import {Pagination} from '@/components/shared/Pagination'
 import {WordSelectionBar} from './components/WordSelectionBar'
 import {EmptyState} from './components/EmptyState'
 import {useWordList} from './hook/useWordList'
+import {useBookmark} from '@/features/bookmarks/hook/useBookmark'
 
 const LIMIT = 12
 
@@ -27,6 +28,8 @@ export function WordsList() {
     commonOnly,
     LIMIT,
   )
+  const {useGetBookmarkedIds, toggleBookmark} = useBookmark({type: 'word'})
+  const {data: bookmarkedIds} = useGetBookmarkedIds()
 
   const words = data?.data ?? []
   const total = data?.total ?? 0
@@ -66,6 +69,14 @@ export function WordsList() {
     setJlptFilter('all')
     setCommonOnly(false)
     setPage(1)
+  }
+
+  const handleToggleBookmark = (wordId: number) => {
+    const isBookmarked = bookmarkedIds?.includes(wordId) ?? false
+    toggleBookmark.mutate({
+      id: wordId,
+      action: isBookmarked ? 'remove' : 'add',
+    })
   }
 
   return (
@@ -117,11 +128,13 @@ export function WordsList() {
                   isSelectionMode={isSelectionMode}
                   isSelected={selectedIds.has(word.id)}
                   onToggleSelect={handleToggleSelect}
+                  isBookmarked={bookmarkedIds?.includes(word.id) ?? false}
+                  onToggleBookmark={() => handleToggleBookmark(word.id)}
                 />
               ))}
             </div>
 
-            <WordPagination
+            <Pagination
               page={page}
               total={total}
               limit={LIMIT}

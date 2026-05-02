@@ -1,6 +1,7 @@
 'use client'
 
 import {useRouter} from 'next/navigation'
+import {Bookmark} from 'lucide-react'
 import {WordDTO} from '../types'
 import {Badge} from '@/components/ui/badge'
 import {Card, CardContent} from '@/components/ui/card'
@@ -11,6 +12,8 @@ interface WordCardProps {
   isSelectionMode: boolean
   isSelected: boolean
   onToggleSelect: (id: number) => void
+  isBookmarked?: boolean
+  onToggleBookmark?: () => void
 }
 
 const JLPT_LABELS: Record<number, string> = {
@@ -26,6 +29,8 @@ export function WordCard({
   isSelectionMode,
   isSelected,
   onToggleSelect,
+  isBookmarked,
+  onToggleBookmark,
 }: WordCardProps) {
   const router = useRouter()
 
@@ -50,7 +55,7 @@ export function WordCard({
       className={`cursor-pointer transition-colors ${isSelected ? 'border-primary bg-primary/5' : 'hover:border-primary/50'}`}
       onClick={handleCardClick}
     >
-      <CardContent className='p-4'>
+      <CardContent>
         {/* Top row: kanji + reading, dot menu */}
         <div className='flex items-center justify-between gap-2 mb-2'>
           <div className='flex items-center gap-2'>
@@ -61,8 +66,24 @@ export function WordCard({
             )}
             <span className='font-semibold text-base'>{headerLabel}</span>
           </div>
-          <div onClick={handleDotClick}>
-            <WordCardDotMenu wordId={word.id} />
+          <div className='flex items-center gap-1'>
+            {isBookmarked !== undefined && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onToggleBookmark?.()
+                }}
+                className="flex-shrink-0"
+              >
+                <Bookmark
+                  className={isBookmarked ? 'fill-primary text-primary' : 'text-muted-foreground'}
+                  size={18}
+                />
+              </button>
+            )}
+            <div onClick={handleDotClick}>
+              <WordCardDotMenu wordId={word.id} isBookmarked={!!isBookmarked} />
+            </div>
           </div>
         </div>
 

@@ -12,6 +12,7 @@ import {GrammarSearchBar} from './components/GrammarSearchBar'
 import {LessonBanner} from './components/LessonBanner'
 import {GrammarItem} from './types'
 import Container from '@/components/layout/Container'
+import {useBookmark} from '@/features/bookmarks/hook/useBookmark'
 
 export function GrammarList() {
   const router = useRouter()
@@ -26,6 +27,8 @@ export function GrammarList() {
 
   const listQuery = useGrammarList(selectedLevel, lessonParam)
   const searchQuery_ = useGrammarSearch(searchQuery)
+  const {useGetBookmarkedIds, toggleBookmark} = useBookmark({type: 'grammar'})
+  const {data: bookmarkedIds} = useGetBookmarkedIds()
 
   const updateUrl = useCallback(
     (level: string, lesson: string) => {
@@ -51,6 +54,14 @@ export function GrammarList() {
 
   const handleSearch = (q: string) => {
     setSearchQuery(q)
+  }
+
+  const handleToggleBookmark = (grammarId: number) => {
+    const isBookmarked = bookmarkedIds?.includes(grammarId) ?? false
+    toggleBookmark.mutate({
+      id: grammarId,
+      action: isBookmarked ? 'remove' : 'add',
+    })
   }
 
   const isSearchMode = searchQuery.trim().length > 0
@@ -105,7 +116,14 @@ export function GrammarList() {
         ) : (
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
             {data.map((grammar: GrammarItem , idx) => (
-              <GrammarCard key={grammar.id} grammar={grammar} index={idx} total={listQuery?.data?.total ?? 0}/>
+              <GrammarCard
+                key={grammar.id}
+                grammar={grammar}
+                index={idx}
+                total={listQuery?.data?.total ?? 0}
+                isBookmarked={bookmarkedIds?.includes(grammar.id) ?? false}
+                onToggleBookmark={() => handleToggleBookmark(grammar.id)}
+              />
             ))}
           </div>
         )}

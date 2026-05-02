@@ -2,8 +2,9 @@
 
 import {useRouter} from 'next/navigation'
 import {isKanji, toHiragana} from 'wanakana'
+import {Bookmark} from 'lucide-react'
 import {GrammarItem} from '../types'
-import {GrammarSettingsPopup} from './GrammarSettingsPopup'
+import {GrammarCardDotMenu} from './GrammarCardDotMenu'
 import {Badge} from '@/components/ui/badge'
 import {Card, CardContent} from '@/components/ui/card'
 
@@ -11,26 +12,73 @@ interface GrammarCardProps {
   grammar: GrammarItem
   index: number
   total: number
+  isBookmarked?: boolean
+  onToggleBookmark?: () => void
+  isSelectionMode?: boolean
+  isSelected?: boolean
+  onToggleSelect?: (id: number) => void
 }
 
-export function GrammarCard({grammar, index, total}: GrammarCardProps) {
+export function GrammarCard({
+  grammar,
+  index,
+  total,
+  isBookmarked,
+  onToggleBookmark,
+  isSelectionMode,
+  isSelected,
+  onToggleSelect,
+}: GrammarCardProps) {
   const router = useRouter()
 
+  const lessonLabel =
+    grammar.lessonNumber != null
+      ? `Lesson ${grammar.lessonNumber}: ${index + 1}/${total} `
+      : null
 
-  const lessonLabel = grammar.lessonNumber != null ? `Lesson ${grammar.lessonNumber}: ${index + 1}/${total} ` : null
+  const handleCardClick = () => {
+    if (isSelectionMode) {
+      onToggleSelect?.(grammar.id)
+    } else {
+      router.push(`/grammar/${grammar.id}`)
+    }
+  }
 
   return (
     <Card
-      className='cursor-pointer hover:border-primary/50 transition-colors'
-      onClick={() => router.push(`/grammar/${grammar.id}`)}
+      className={`cursor-pointer transition-colors py-2 ${isSelected ? 'border-primary bg-primary/5' : 'hover:border-primary/50'}`}
+      onClick={handleCardClick}
     >
       <CardContent className='p-4'>
         <div className='flex items-start justify-between gap-2 mb-1'>
-          <div className='flex flex-col'>
-            <span className='font-semibold text-base'>{grammar.grammarPoint}</span>
+          <div className='flex items-center gap-2'>
+            {isSelectionMode && (
+              <span
+                className={`w-4 h-4 rounded border flex-shrink-0 ${isSelected ? 'bg-primary border-primary' : 'border-muted-foreground'}`}
+              />
+            )}
+            <span className='font-semibold text-base'>
+              {grammar.grammarPoint}
+            </span>
           </div>
-          <div onClick={e => e.stopPropagation()}>
-            <GrammarSettingsPopup grammarId={grammar.id} />
+          <div className='flex items-center gap-1'>
+            {isBookmarked !== undefined && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onToggleBookmark?.()
+                }}
+                className="flex-shrink-0"
+              >
+                <Bookmark
+                  className={isBookmarked ? 'fill-primary text-primary' : 'text-muted-foreground'}
+                  size={18}
+                />
+              </button>
+            )}
+            <div onClick={(e) => e.stopPropagation()}>
+              <GrammarCardDotMenu grammarId={grammar.id} isBookmarked={!!isBookmarked} />
+            </div>
           </div>
         </div>
 

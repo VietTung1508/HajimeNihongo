@@ -10,17 +10,17 @@ import {
 } from '@/components/ui/dropdown-menu'
 import {useBookmark} from '@/features/bookmarks/hook/useBookmark'
 
-interface WordCardDotMenuProps {
-  wordId: number
+interface GrammarCardDotMenuProps {
+  grammarId: number
   isBookmarked?: boolean
 }
 
-export function WordCardDotMenu({wordId, isBookmarked = false}: WordCardDotMenuProps) {
-  const {toggleBookmark} = useBookmark({type: 'word'})
+export function GrammarCardDotMenu({grammarId, isBookmarked = false}: GrammarCardDotMenuProps) {
+  const {toggleBookmark} = useBookmark({type: 'grammar'})
 
   const handleBookmarkClick = () => {
     toggleBookmark.mutate({
-      id: wordId,
+      id: grammarId,
       action: isBookmarked ? 'remove' : 'add',
     })
   }

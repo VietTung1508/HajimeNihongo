@@ -1,7 +1,13 @@
 'use client'
 
 import {useRouter} from 'next/navigation'
-import {Clock} from 'lucide-react'
+import {
+  BookMarkedIcon,
+  BookmarkIcon,
+  BookmarkPlus,
+  CheckCheck,
+  Clock,
+} from 'lucide-react'
 import {toast} from 'sonner'
 import {Button} from '@/components/ui/button'
 import {
@@ -16,7 +22,10 @@ interface WordSelectionBarProps {
   onStopSelecting: () => void
 }
 
-export function WordSelectionBar({selectedIds, onStopSelecting}: WordSelectionBarProps) {
+export function WordSelectionBar({
+  selectedIds,
+  onStopSelecting,
+}: WordSelectionBarProps) {
   const router = useRouter()
   const count = selectedIds.length
 
@@ -58,18 +67,22 @@ export function WordSelectionBar({selectedIds, onStopSelecting}: WordSelectionBa
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
               <DropdownMenuItem onClick={handleAddToReviews}>
+                <BookmarkPlus size={15} className='mr-2' />
                 Add to reviews
               </DropdownMenuItem>
               <DropdownMenuItem onClick={handleMarkMastered}>
+                <CheckCheck size={15} className='mr-2' />
                 Mark as mastered
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleAddToReviews}>
+                <BookmarkIcon size={15} className='mr-2' />
+                Add to bookmark
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
           {/* Learn — primary button */}
-          <Button onClick={handleLearn}>
-            Learn
-          </Button>
+          <Button onClick={handleLearn}>Learn</Button>
         </div>
       </div>
     </div>
