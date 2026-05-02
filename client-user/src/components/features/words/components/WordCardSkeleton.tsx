@@ -6,7 +6,7 @@ import {Skeleton} from '@/components/ui/skeleton'
 export function WordCardSkeleton() {
   return (
     <Card>
-      <CardContent className='p-4'>
+      <CardContent>
         {/* Top row */}
         <div className='flex items-center justify-between gap-2 mb-2'>
           <Skeleton className='h-5 w-32' />

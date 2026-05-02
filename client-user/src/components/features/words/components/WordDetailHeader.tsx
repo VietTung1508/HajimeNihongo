@@ -1,21 +1,44 @@
 'use client'
 
+import {useState, useEffect} from 'react'
 import {Bookmark, Share} from 'lucide-react'
 import {WordDetailDTO} from '../types'
 import {Badge} from '@/components/ui/badge'
+import {Button} from '@/components/ui/button'
+import {useBookmark} from '@/features/bookmarks/hook/useBookmark'
 
 interface WordDetailHeaderProps {
   word: WordDetailDTO
 }
 
 export function WordDetailHeader({word}: WordDetailHeaderProps) {
-  const titleDisplay = word.kanji ? word.kanji : word.reading
+  const [isBookmarked, setIsBookmarked] = useState(false)
+  const {useGetBookmarkedIds, toggleBookmark} = useBookmark({type: 'word'})
+  const {data: bookmarkedIds} = useGetBookmarkedIds()
 
+  useEffect(() => {
+    if (bookmarkedIds) {
+      setIsBookmarked(bookmarkedIds.includes(word.id))
+    }
+  }, [bookmarkedIds, word.id])
+
+  const handleToggleBookmark = () => {
+    const action = isBookmarked ? 'remove' : 'add'
+    toggleBookmark.mutate(
+      {id: word.id, action},
+      {
+        onSuccess: () => {
+          setIsBookmarked(!isBookmarked)
+        },
+      },
+    )
+  }
+
+  const titleDisplay = word.kanji ? word.kanji : word.reading
   const meaningsText = word.meanings.map((m) => m.text).join(', ')
 
   return (
     <div className='space-y-2'>
-      {/* Top Bar */}
       <div className='flex justify-between items-center'>
         <div className='flex flex-col gap-1 pt-2'>
           <p>Vocab Info</p>
@@ -28,12 +51,20 @@ export function WordDetailHeader({word}: WordDetailHeaderProps) {
           </div>
         </div>
         <div className='flex items-center gap-5'>
-          <Bookmark />
-          <Share />
+          <Button
+            variant='ghost'
+            size='icon'
+            onClick={handleToggleBookmark}
+          >
+            <Bookmark
+              className={isBookmarked ? 'fill-primary text-primary' : ''}
+              size={20}
+            />
+          </Button>
+          <Share size={20} />
         </div>
       </div>
 
-      {/* Centered Title Section */}
       <div className='flex justify-center items-center h-50 mb-8'>
         <div className='flex flex-col items-center text-center'>
           {word.kanji && (

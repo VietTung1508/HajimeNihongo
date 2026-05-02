@@ -84,7 +84,9 @@ const Header = () => {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem className='flex items-center gap-2'>
+                      <Link href='/bookmarks' className='flex items-center gap-2'>
                       <Bookmark className='w-4 h-4' /> Bookmarks
+                      </Link>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

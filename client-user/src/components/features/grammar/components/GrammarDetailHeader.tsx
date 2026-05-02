@@ -1,14 +1,39 @@
 'use client'
 
+import {useState, useEffect} from 'react'
 import {Bookmark, Share} from 'lucide-react'
 import {GrammarDetail} from '../types'
 import {Badge} from '@/components/ui/badge'
+import {Button} from '@/components/ui/button'
+import {useBookmark} from '@/features/bookmarks/hook/useBookmark'
 
 interface GrammarDetailHeaderProps {
   grammar: GrammarDetail
 }
 
 export function GrammarDetailHeader({grammar}: GrammarDetailHeaderProps) {
+  const [isBookmarked, setIsBookmarked] = useState(false)
+  const {useGetBookmarkedIds, toggleBookmark} = useBookmark({type: 'grammar'})
+  const {data: bookmarkedIds} = useGetBookmarkedIds()
+
+  useEffect(() => {
+    if (bookmarkedIds) {
+      setIsBookmarked(bookmarkedIds.includes(grammar.id))
+    }
+  }, [bookmarkedIds, grammar.id])
+
+  const handleToggleBookmark = () => {
+    const action = isBookmarked ? 'remove' : 'add'
+    toggleBookmark.mutate(
+      {id: grammar.id, action},
+      {
+        onSuccess: () => {
+          setIsBookmarked(!isBookmarked)
+        },
+      },
+    )
+  }
+
   return (
     <div className='space-y-2'>
       <div className='flex justify-between items-center'>
@@ -22,8 +47,17 @@ export function GrammarDetailHeader({grammar}: GrammarDetailHeaderProps) {
           </div>
         </div>
         <div className='flex items-center gap-5'>
-          <Bookmark />
-          <Share />
+          <Button
+            variant='ghost'
+            size='icon'
+            onClick={handleToggleBookmark}
+          >
+            <Bookmark
+              className={isBookmarked ? 'fill-primary text-primary' : ''}
+              size={20}
+            />
+          </Button>
+          <Share size={20} />
         </div>
       </div>
       <div className='flex justify-center items-center h-50 mb-8'>
