@@ -14,10 +14,13 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
 import {ChevronDown} from 'lucide-react'
+import {useReviewItems} from '@/components/features/review/hook/useReviewQueue'
 
 const Header = () => {
   const [isSticky, setIsSticky] = useState(false)
   const {user, isAuthenticated} = useAppSelector((state) => state.auth)
+  const {data: reviewData} = useReviewItems()
+  const reviewCount = reviewData?.total ?? 0
 
   useEffect(() => {
     const handleScroll = () => {
@@ -59,9 +62,16 @@ const Header = () => {
               </>
             ) : (
               <div className='flex items-center gap-4'>
-                <Button variant='ghost' className='text-white'>
-                  Review
-                </Button>
+                <Link href='/review'>
+                  <Button variant='ghost' className='text-white gap-2'>
+                    Review
+                    {reviewCount > 0 && (
+                      <span className='bg-red-500 text-white text-xs rounded-full px-2 py-0.5'>
+                        {reviewCount}
+                      </span>
+                    )}
+                  </Button>
+                </Link>
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>

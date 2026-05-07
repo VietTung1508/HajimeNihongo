@@ -9,6 +9,7 @@ import {WordSelectionBar} from './components/WordSelectionBar'
 import {EmptyState} from './components/EmptyState'
 import {useWordList} from './hook/useWordList'
 import {useBookmark} from '@/features/bookmarks/hook/useBookmark'
+import {useMasteredIds} from '@/components/features/review/hook/useReviewQueue'
 
 const LIMIT = 12
 
@@ -30,6 +31,7 @@ export function WordsList() {
   )
   const {useGetBookmarkedIds, toggleBookmark} = useBookmark({type: 'word'})
   const {data: bookmarkedIds} = useGetBookmarkedIds()
+  const {data: masteredIds} = useMasteredIds('word')
 
   const words = data?.data ?? []
   const total = data?.total ?? 0
@@ -130,6 +132,7 @@ export function WordsList() {
                   onToggleSelect={handleToggleSelect}
                   isBookmarked={bookmarkedIds?.includes(word.id) ?? false}
                   onToggleBookmark={() => handleToggleBookmark(word.id)}
+                  isMastered={masteredIds?.ids.includes(word.id) ?? false}
                 />
               ))}
             </div>

@@ -2,7 +2,7 @@
 
 import {useRouter} from 'next/navigation'
 import {isKanji, toHiragana} from 'wanakana'
-import {Bookmark} from 'lucide-react'
+import {Bookmark, Award} from 'lucide-react'
 import {GrammarItem} from '../types'
 import {GrammarCardDotMenu} from './GrammarCardDotMenu'
 import {Badge} from '@/components/ui/badge'
@@ -17,6 +17,7 @@ interface GrammarCardProps {
   isSelectionMode?: boolean
   isSelected?: boolean
   onToggleSelect?: (id: number) => void
+  isMastered?: boolean
 }
 
 export function GrammarCard({
@@ -28,6 +29,7 @@ export function GrammarCard({
   isSelectionMode,
   isSelected,
   onToggleSelect,
+  isMastered,
 }: GrammarCardProps) {
   const router = useRouter()
 
@@ -89,6 +91,12 @@ export function GrammarCard({
           {lessonLabel && (
             <Badge variant='outline' className='text-xs'>
               {lessonLabel}
+            </Badge>
+          )}
+          {isMastered && (
+            <Badge variant='outline' className='text-xs bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900 dark:text-yellow-200 dark:border-yellow-700 flex items-center gap-1'>
+              <Award className='w-3 h-3' />
+              Mastered
             </Badge>
           )}
         </div>

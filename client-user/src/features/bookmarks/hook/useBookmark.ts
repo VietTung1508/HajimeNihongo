@@ -129,10 +129,35 @@ export function useBookmark({type}: UseBookmarkOptions) {
     },
   })
 
+  const bulkAddBookmarks = useMutation({
+    mutationFn: async (ids: number[]) => {
+      const {data} = await api.post<BookmarkMutationResponse>(
+        `/bookmarks/${type}`,
+        {ids},
+      )
+      return data
+    },
+    onSuccess: (data: BookmarkMutationResponse) => {
+      if (data.added > 0) {
+        toast.success(`Added ${data.added} ${type}${data.added > 1 ? 's' : ''} to bookmarks`)
+      }
+      if (data.skipped > 0) {
+        toast.info(`${data.skipped} ${type}${data.skipped > 1 ? 's' : ''} already bookmarked`)
+      }
+    },
+    onError: () => {
+      toast.error('Failed to add to bookmarks')
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({queryKey: ['bookmarks']})
+    },
+  })
+
   return {
     useGetBookmarks,
     useGetBookmarkedIds,
     toggleBookmark,
     bulkRemoveBookmarks,
+    bulkAddBookmarks,
   }
 }

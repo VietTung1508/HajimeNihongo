@@ -12,6 +12,7 @@ import {Badge} from '@/components/ui/badge'
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
 import {Button} from '@/components/ui/button'
 import {Eye, EyeOff} from 'lucide-react'
+import {AddToReviewButton} from '@/components/features/review/components/AddToReviewButton'
 
 interface GrammarDetailProps {
   id: number
@@ -127,6 +128,11 @@ export function GrammarDetail({id}: GrammarDetailProps) {
     <Container>
       <div className='py-6 space-y-6'>
         <GrammarDetailHeader grammar={data} />
+
+        {/* Review Action */}
+        <div className='flex justify-end'>
+          <AddToReviewButton type='grammar' itemId={id} />
+        </div>
 
         <div className='grid grid-cols-12 gap-6'>
           {/* LEFT COLUMN: 8/12 */}
