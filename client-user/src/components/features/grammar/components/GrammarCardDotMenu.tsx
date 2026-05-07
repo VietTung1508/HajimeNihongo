@@ -1,6 +1,6 @@
 'use client'
 
-import {MoreVertical} from 'lucide-react'
+import {MoreVertical, BookmarkPlus, CheckCheck, BookmarkIcon} from 'lucide-react'
 import {Button} from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {useBookmark} from '@/features/bookmarks/hook/useBookmark'
+import { useAddToQueue, useQueuedIds, useRemoveFromQueue, useMarkAsMastered, useMasteredIds } from '../../review/hook/useReviewQueue'
 
 interface GrammarCardDotMenuProps {
   grammarId: number
@@ -17,6 +18,14 @@ interface GrammarCardDotMenuProps {
 
 export function GrammarCardDotMenu({grammarId, isBookmarked = false}: GrammarCardDotMenuProps) {
   const {toggleBookmark} = useBookmark({type: 'grammar'})
+  const {data: queuedIds} = useQueuedIds('grammar')
+  const {data: masteredIds} = useMasteredIds('grammar')
+  const {addGrammar, isAddingGrammar} = useAddToQueue()
+  const {removeGrammar, isRemovingGrammar} = useRemoveFromQueue()
+  const {markGrammar, unmarkGrammar, isMarkingGrammar, isUnmarkingGrammar} = useMarkAsMastered()
+
+  const isAddedToQueue = queuedIds?.ids.includes(grammarId) ?? false
+  const isMastered = masteredIds?.ids.includes(grammarId) ?? false
 
   const handleBookmarkClick = () => {
     toggleBookmark.mutate({
@@ -24,6 +33,24 @@ export function GrammarCardDotMenu({grammarId, isBookmarked = false}: GrammarCar
       action: isBookmarked ? 'remove' : 'add',
     })
   }
+
+  const handleAddToReviews = () => {
+    addGrammar([grammarId])
+  }
+
+  const handleRemoveFromReviews = () => {
+    removeGrammar([grammarId])
+  }
+
+  const handleToggleMastered = () => {
+    if (isMastered) {
+      unmarkGrammar([grammarId])
+    } else {
+      markGrammar([grammarId])
+    }
+  }
+
+  const isProcessing = isAddingGrammar || isRemovingGrammar || isMarkingGrammar || isUnmarkingGrammar
 
   return (
     <DropdownMenu>
@@ -33,13 +60,33 @@ export function GrammarCardDotMenu({grammarId, isBookmarked = false}: GrammarCar
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align='end'>
-        <DropdownMenuItem onClick={() => console.log('Add to reviews')}>
-          Add to reviews
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => console.log('Mark as mastered')}>
-          Mark as mastered
+        {/* Show Add/Remove from reviews only if not mastered */}
+        {!isMastered && (
+          <DropdownMenuItem
+            onClick={isAddedToQueue ? handleRemoveFromReviews : handleAddToReviews}
+            disabled={isProcessing}
+          >
+            <BookmarkPlus size={15} className='mr-2' />
+            {isAddingGrammar || isRemovingGrammar
+              ? 'Processing...'
+              : isAddedToQueue
+                ? 'Remove from reviews'
+                : 'Add to reviews'}
+          </DropdownMenuItem>
+        )}
+        <DropdownMenuItem
+          onClick={handleToggleMastered}
+          disabled={isProcessing}
+        >
+          <CheckCheck size={15} className='mr-2' />
+          {isMarkingGrammar || isUnmarkingGrammar
+            ? 'Processing...'
+            : isMastered
+              ? 'Unmark as mastered'
+              : 'Mark as mastered'}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleBookmarkClick}>
+          <BookmarkIcon size={15} className='mr-2' />
           {isBookmarked ? 'Remove from Bookmark' : 'Add to Bookmark'}
         </DropdownMenuItem>
       </DropdownMenuContent>

@@ -1,6 +1,6 @@
 'use client'
 
-import {MoreVertical} from 'lucide-react'
+import {MoreVertical, BookmarkPlus, CheckCheck, BookmarkIcon} from 'lucide-react'
 import {Button} from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {useBookmark} from '@/features/bookmarks/hook/useBookmark'
+import { useAddToQueue, useQueuedIds, useRemoveFromQueue, useMarkAsMastered, useMasteredIds } from '../../review/hook/useReviewQueue'
 
 interface WordCardDotMenuProps {
   wordId: number
@@ -17,6 +18,14 @@ interface WordCardDotMenuProps {
 
 export function WordCardDotMenu({wordId, isBookmarked = false}: WordCardDotMenuProps) {
   const {toggleBookmark} = useBookmark({type: 'word'})
+  const {data: queuedIds} = useQueuedIds('word')
+  const {data: masteredIds} = useMasteredIds('word')
+  const {addWord, isAddingWord} = useAddToQueue()
+  const {removeWord, isRemovingWord} = useRemoveFromQueue()
+  const {markWord, unmarkWord, isMarkingWord, isUnmarkingWord} = useMarkAsMastered()
+
+  const isAddedToQueue = queuedIds?.ids.includes(wordId) ?? false
+  const isMastered = masteredIds?.ids.includes(wordId) ?? false
 
   const handleBookmarkClick = () => {
     toggleBookmark.mutate({
@@ -24,6 +33,24 @@ export function WordCardDotMenu({wordId, isBookmarked = false}: WordCardDotMenuP
       action: isBookmarked ? 'remove' : 'add',
     })
   }
+
+  const handleAddToReviews = () => {
+    addWord([wordId])
+  }
+
+  const handleRemoveFromReviews = () => {
+    removeWord([wordId])
+  }
+
+  const handleToggleMastered = () => {
+    if (isMastered) {
+      unmarkWord([wordId])
+    } else {
+      markWord([wordId])
+    }
+  }
+
+  const isProcessing = isAddingWord || isRemovingWord || isMarkingWord || isUnmarkingWord
 
   return (
     <DropdownMenu>
@@ -33,13 +60,33 @@ export function WordCardDotMenu({wordId, isBookmarked = false}: WordCardDotMenuP
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align='end'>
-        <DropdownMenuItem onClick={() => console.log('Add to reviews')}>
-          Add to reviews
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => console.log('Mark as mastered')}>
-          Mark as mastered
+        {/* Show Add/Remove from reviews only if not mastered */}
+        {!isMastered && (
+          <DropdownMenuItem
+            onClick={isAddedToQueue ? handleRemoveFromReviews : handleAddToReviews}
+            disabled={isProcessing}
+          >
+            <BookmarkPlus size={15} className='mr-2' />
+            {isAddingWord || isRemovingWord
+              ? 'Processing...'
+              : isAddedToQueue
+                ? 'Remove from reviews'
+                : 'Add to reviews'}
+          </DropdownMenuItem>
+        )}
+        <DropdownMenuItem
+          onClick={handleToggleMastered}
+          disabled={isProcessing}
+        >
+          <CheckCheck size={15} className='mr-2' />
+          {isMarkingWord || isUnmarkingWord
+            ? 'Processing...'
+            : isMastered
+              ? 'Unmark as mastered'
+              : 'Mark as mastered'}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleBookmarkClick}>
+          <BookmarkIcon size={15} className='mr-2' />
           {isBookmarked ? 'Remove from Bookmark' : 'Add to Bookmark'}
         </DropdownMenuItem>
       </DropdownMenuContent>

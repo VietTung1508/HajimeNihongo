@@ -1,6 +1,7 @@
 import {MikroORM} from '@mikro-orm/postgresql'
 import argon2 from 'argon2'
-import {User, UserRole} from './entities/User'
+import {User} from './entities/User'
+import {UserRole} from './enums/auth.enum'
 import mikroOrmConfig from './mikro-orm.config'
 
 async function seedAdmin() {

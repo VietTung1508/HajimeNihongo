@@ -1,7 +1,7 @@
 'use client'
 
 import {useRouter} from 'next/navigation'
-import {Bookmark} from 'lucide-react'
+import {Bookmark, Award} from 'lucide-react'
 import {WordDTO} from '../types'
 import {Badge} from '@/components/ui/badge'
 import {Card, CardContent} from '@/components/ui/card'
@@ -14,6 +14,7 @@ interface WordCardProps {
   onToggleSelect: (id: number) => void
   isBookmarked?: boolean
   onToggleBookmark?: () => void
+  isMastered?: boolean
 }
 
 const JLPT_LABELS: Record<number, string> = {
@@ -31,6 +32,7 @@ export function WordCard({
   onToggleSelect,
   isBookmarked,
   onToggleBookmark,
+  isMastered,
 }: WordCardProps) {
   const router = useRouter()
 
@@ -101,6 +103,12 @@ export function WordCard({
           {word.isCommon && (
             <Badge variant='outline' className='text-xs bg-green-100'>
               Common
+            </Badge>
+          )}
+          {isMastered && (
+            <Badge variant='outline' className='text-xs bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900 dark:text-yellow-200 dark:border-yellow-700 flex items-center gap-1'>
+              <Award className='w-3 h-3' />
+              Mastered
             </Badge>
           )}
         </div>

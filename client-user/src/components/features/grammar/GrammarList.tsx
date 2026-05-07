@@ -13,6 +13,7 @@ import {LessonBanner} from './components/LessonBanner'
 import {GrammarItem} from './types'
 import Container from '@/components/layout/Container'
 import {useBookmark} from '@/features/bookmarks/hook/useBookmark'
+import {useMasteredIds} from '@/components/features/review/hook/useReviewQueue'
 
 export function GrammarList() {
   const router = useRouter()
@@ -29,6 +30,7 @@ export function GrammarList() {
   const searchQuery_ = useGrammarSearch(searchQuery)
   const {useGetBookmarkedIds, toggleBookmark} = useBookmark({type: 'grammar'})
   const {data: bookmarkedIds} = useGetBookmarkedIds()
+  const {data: masteredIds} = useMasteredIds('grammar')
 
   const updateUrl = useCallback(
     (level: string, lesson: string) => {
@@ -123,6 +125,7 @@ export function GrammarList() {
                 total={listQuery?.data?.total ?? 0}
                 isBookmarked={bookmarkedIds?.includes(grammar.id) ?? false}
                 onToggleBookmark={() => handleToggleBookmark(grammar.id)}
+                isMastered={masteredIds?.ids.includes(grammar.id) ?? false}
               />
             ))}
           </div>
