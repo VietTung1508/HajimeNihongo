@@ -15,12 +15,15 @@ import {
 } from '../ui/dropdown-menu'
 import {ChevronDown} from 'lucide-react'
 import {useReviewItems} from '@/components/features/review/hook/useReviewQueue'
+import {useTodayLearn} from '@/components/features/learn/hooks/useLearn'
 
 const Header = () => {
   const [isSticky, setIsSticky] = useState(false)
   const {user, isAuthenticated} = useAppSelector((state) => state.auth)
   const {data: reviewData} = useReviewItems()
   const reviewCount = reviewData?.total ?? 0
+  const {data: todayLearn} = useTodayLearn()
+  const learnCount = todayLearn?.items?.filter((item) => !item.viewedAt).length ?? 0
 
   useEffect(() => {
     const handleScroll = () => {
@@ -62,6 +65,17 @@ const Header = () => {
               </>
             ) : (
               <div className='flex items-center gap-4'>
+                <Link href='/learn'>
+                  <Button variant='ghost' className='text-white gap-2'>
+                    Learn
+                    {learnCount > 0 && (
+                      <span className='bg-red-500 text-white text-xs rounded-full px-2 py-0.5'>
+                        {learnCount}
+                      </span>
+                    )}
+                  </Button>
+                </Link>
+
                 <Link href='/review'>
                   <Button variant='ghost' className='text-white gap-2'>
                     Review

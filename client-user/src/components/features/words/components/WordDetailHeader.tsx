@@ -6,8 +6,7 @@ import {WordDetailDTO} from '../types'
 import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
 import {useBookmark} from '@/features/bookmarks/hook/useBookmark'
-import {AddToReviewButton} from '@/components/features/review/components/AddToReviewButton'
-import {useMasteredIds, useMarkAsMastered} from '@/components/features/review/hook/useReviewQueue'
+import {useMasteredIds} from '@/components/features/review/hook/useReviewQueue'
 
 interface WordDetailHeaderProps {
   word: WordDetailDTO
@@ -18,7 +17,6 @@ export function WordDetailHeader({word}: WordDetailHeaderProps) {
   const {useGetBookmarkedIds, toggleBookmark} = useBookmark({type: 'word'})
   const {data: bookmarkedIds} = useGetBookmarkedIds()
   const {data: masteredIds} = useMasteredIds('word')
-  const {markWord, unmarkWord, isMarkingWord, isUnmarkingWord} = useMarkAsMastered()
 
   const isMastered = masteredIds?.ids.includes(word.id) ?? false
 
@@ -38,14 +36,6 @@ export function WordDetailHeader({word}: WordDetailHeaderProps) {
         },
       },
     )
-  }
-
-  const handleToggleMastered = () => {
-    if (isMastered) {
-      unmarkWord([word.id])
-    } else {
-      markWord([word.id])
-    }
   }
 
   const titleDisplay = word.kanji ? word.kanji : word.reading
@@ -71,22 +61,6 @@ export function WordDetailHeader({word}: WordDetailHeaderProps) {
           </div>
         </div>
         <div className='flex items-center gap-3'>
-          {/* Show Add to Review button only if not mastered */}
-          {!isMastered && <AddToReviewButton type='word' itemId={word.id} />}
-          {/* Mastered/Unmastered button */}
-          <Button
-            variant='outline'
-            size='sm'
-            onClick={handleToggleMastered}
-            disabled={isMarkingWord || isUnmarkingWord}
-            className={isMastered ? 'bg-yellow-50 border-yellow-300 text-yellow-800 hover:bg-yellow-100' : ''}
-          >
-            {isMarkingWord || isUnmarkingWord
-              ? 'Processing...'
-              : isMastered
-                ? 'Unmark Mastered'
-                : 'Mark Mastered'}
-          </Button>
           <Button
             variant='ghost'
             size='icon'

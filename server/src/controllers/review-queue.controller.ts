@@ -5,7 +5,9 @@ import {Grammar} from '../entities/Grammar'
 import {User} from '../entities/User'
 import {UserWordProgress} from '../entities/UserWordProgress'
 import {UserGrammarProgress} from '../entities/UserGrammarProgress'
+import {DailyLearnItem} from '../entities/DailyLearnItem'
 import {DI} from '../utils/di'
+import {mirrorMasteredToDailyLearnItem} from './learn.controller'
 
 interface ReviewQueueMutationResponse {
   added: number
@@ -111,7 +113,7 @@ export const addWordToQueue = async (req: Request, res: Response) => {
 
     const existing = await em.find(
       ReviewQueue,
-      {user, word: uniqueIds},
+      {user, word: {$in: uniqueIds}},
       {fields: ['word']},
     )
     const existingWordIds = new Set(
@@ -159,7 +161,7 @@ export const removeWordFromQueue = async (req: Request, res: Response) => {
 
     const reviewItems = await em.find(ReviewQueue, {
       user,
-      word: ids,
+      word: {$in: ids},
     })
 
     const removed = reviewItems.length
@@ -197,7 +199,7 @@ export const addGrammarToQueue = async (req: Request, res: Response) => {
 
     const existing = await em.find(
       ReviewQueue,
-      {user, grammar: uniqueIds},
+      {user, grammar: {$in: uniqueIds}},
       {fields: ['grammar']},
     )
     const existingGrammarIds = new Set(
@@ -245,7 +247,7 @@ export const removeGrammarFromQueue = async (req: Request, res: Response) => {
 
     const reviewItems = await em.find(ReviewQueue, {
       user,
-      grammar: ids,
+      grammar: {$in: ids},
     })
 
     const removed = reviewItems.length
@@ -333,10 +335,22 @@ export const markWordAsMastered = async (req: Request, res: Response) => {
 
     await em.flush()
 
+    // Mirror to DailyLearnItem if applicable
+    const dailyLearnItems = await em.find(DailyLearnItem, {
+      word: {$in: ids},
+      masteredAt: null,
+    }, {
+      populate: ['dailyLearn'],
+    })
+
+    for (const dailyLearnItem of dailyLearnItems) {
+      await mirrorMasteredToDailyLearnItem(dailyLearnItem.id)
+    }
+
     // Remove from review queue
     const reviewItems = await em.find(ReviewQueue, {
       user,
-      word: ids,
+      word: {$in: ids},
     })
 
     await em.removeAndFlush(reviewItems)
@@ -380,10 +394,22 @@ export const markGrammarAsMastered = async (req: Request, res: Response) => {
 
     await em.flush()
 
+    // Mirror to DailyLearnItem if applicable
+    const dailyLearnItems = await em.find(DailyLearnItem, {
+      grammar: {$in: ids},
+      masteredAt: null,
+    }, {
+      populate: ['dailyLearn'],
+    })
+
+    for (const dailyLearnItem of dailyLearnItems) {
+      await mirrorMasteredToDailyLearnItem(dailyLearnItem.id)
+    }
+
     // Remove from review queue
     const reviewItems = await em.find(ReviewQueue, {
       user,
-      grammar: ids,
+      grammar: {$in: ids},
     })
 
     await em.removeAndFlush(reviewItems)
@@ -449,7 +475,7 @@ export const unmarkWordAsMastered = async (req: Request, res: Response) => {
 
     const progressItems = await em.find(UserWordProgress, {
       user,
-      word: ids,
+      word: {$in: ids},
     })
 
     const removed = progressItems.length
@@ -479,7 +505,7 @@ export const unmarkGrammarAsMastered = async (req: Request, res: Response) => {
 
     const progressItems = await em.find(UserGrammarProgress, {
       user,
-      grammar: ids,
+      grammar: {$in: ids},
     })
 
     const removed = progressItems.length

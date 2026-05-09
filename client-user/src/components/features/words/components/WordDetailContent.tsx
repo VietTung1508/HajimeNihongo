@@ -130,7 +130,7 @@ export function WordDetailContent({word}: WordDetailContentProps) {
       </div>
 
       <div className='lg:w-1/4'>
-        <ActionButtons />
+        <ActionButtons word={word} />
       </div>
     </div>
   )

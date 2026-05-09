@@ -3,6 +3,8 @@ import AppLayout from '@/components/layout/AppLayout'
 
 export default function ReviewPage() {
   return (
+    <AppLayout>
       <ReviewMain />
+    </AppLayout>
   )
 }
