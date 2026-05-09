@@ -2,6 +2,8 @@ import {useQuery, useQueryClient} from '@tanstack/react-query'
 import {onboardingApi} from '@/components/features/onboarding/services/api'
 import {useAppDispatch} from '@/redux/hooks'
 import {onboardingThunk} from '@/redux/auth/authSlice'
+import {learnApi} from '@/components/features/learn/services/api'
+import {toast} from 'sonner'
 
 export const useOnboardingQuery = () => {
   return useQuery({
@@ -21,6 +23,15 @@ export function useOnboarding() {
 
     if (onboardingThunk.fulfilled.match(result)) {
       queryClient.invalidateQueries({queryKey: ['onboarding']})
+
+      try {
+        const dailyLearn = await learnApi.generateDailyLearn()
+        if (dailyLearn.id && dailyLearn.items.length > 0) {
+          toast.success(`Generated ${dailyLearn.items.length} learning items to get you started!`)
+        }
+      } catch (error) {
+        console.error('Failed to generate initial daily learn:', error)
+      }
     }
 
     return result

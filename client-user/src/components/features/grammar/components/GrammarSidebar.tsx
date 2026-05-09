@@ -1,22 +1,32 @@
 'use client'
 
+import {useState, useEffect} from 'react'
 import {toast} from 'sonner'
 import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
 import {BookmarkPlus, CheckCheck, StickyNote} from 'lucide-react'
 import {GrammarDetail} from '../types'
+import {AddToReviewButton} from '@/components/features/review/components/AddToReviewButton'
+import {useMasteredIds, useMarkAsMastered} from '@/components/features/review/hook/useReviewQueue'
 
 interface GrammarSidebarProps {
   grammar: GrammarDetail
 }
 
 export function GrammarSidebar({grammar}: GrammarSidebarProps) {
-  const handleAddToReviews = () => {
-    toast.success(`"${grammar.grammarPoint}" added to your review list.`)
-  }
+  const {data: masteredIds} = useMasteredIds('grammar')
+  const {markGrammar, unmarkGrammar, isMarkingGrammar, isUnmarkingGrammar} = useMarkAsMastered()
 
-  const handleMarkAsMastered = () => {
-    toast.success(`"${grammar.grammarPoint}" marked as mastered.`)
+  const isMastered = masteredIds?.ids.includes(grammar.id) ?? false
+
+  const handleToggleMastered = () => {
+    if (isMastered) {
+      unmarkGrammar([grammar.id])
+      toast.success(`"${grammar.grammarPoint}" unmarked as mastered.`)
+    } else {
+      markGrammar([grammar.id])
+      toast.success(`"${grammar.grammarPoint}" marked as mastered.`)
+    }
   }
 
   const handleAddNote = () => {
@@ -52,22 +62,21 @@ export function GrammarSidebar({grammar}: GrammarSidebarProps) {
 
       {/* Buttons below card */}
       <div className='space-y-2'>
-        <Button
-          variant='default'
-          className='w-full justify-start gap-2 text-sm'
-          onClick={handleAddToReviews}
-        >
-          <BookmarkPlus size={15} />
-          Add To Reviews
-        </Button>
+        {/* Show Add to Review button only if not mastered */}
+        {!isMastered && <AddToReviewButton type='grammar' itemId={grammar.id} />}
 
         <Button
           variant='secondary'
           className='w-full justify-start gap-2 text-sm'
-          onClick={handleMarkAsMastered}
+          onClick={handleToggleMastered}
+          disabled={isMarkingGrammar || isUnmarkingGrammar}
         >
           <CheckCheck size={15} />
-          Mark as Mastered
+          {isMarkingGrammar || isUnmarkingGrammar
+            ? 'Processing...'
+            : isMastered
+              ? 'Unmark Mastered'
+              : 'Mark as Mastered'}
         </Button>
 
         <Button

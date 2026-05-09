@@ -40,10 +40,10 @@ export function AddToReviewButton({type, itemId}: AddToReviewButtonProps) {
 
   return (
     <Button
-      variant={isAdded ? 'default' : 'outline'}
+      variant={isAdded ? 'secondary' : 'default'}
       onClick={handleClick}
       disabled={isLoading}
-      className="gap-2"
+      className="w-full justify-start gap-2 text-sm"
     >
       {isLoading ? (
         <>

@@ -6,5 +6,6 @@ import wordsRoutes from './words.route'
 import audioRoutes from './audio.route'
 import bookmarksRouter from './bookmarks.route'
 import reviewQueueRouter from './review-queue.route'
+import learnRoutes from './learn.route'
 
-export {authRoutes, onboardingRoutes, kanaRoutes, grammarRoutes, wordsRoutes, audioRoutes, bookmarksRouter, reviewQueueRouter}
+export {authRoutes, onboardingRoutes, kanaRoutes, grammarRoutes, wordsRoutes, audioRoutes, bookmarksRouter, reviewQueueRouter, learnRoutes}

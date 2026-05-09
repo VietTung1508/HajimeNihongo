@@ -164,6 +164,8 @@ export function useMarkAsMastered() {
       queryClient.invalidateQueries({queryKey: ['mastered-ids', 'word']})
       queryClient.invalidateQueries({queryKey: ['queued-ids', 'word']})
       queryClient.invalidateQueries({queryKey: ['review-items']})
+      queryClient.invalidateQueries({queryKey: ['learn-today']})
+      queryClient.invalidateQueries({queryKey: ['learn-streak']})
     },
     onError: () => {
       toast.error('Failed to mark words as mastered')
@@ -179,6 +181,8 @@ export function useMarkAsMastered() {
       queryClient.invalidateQueries({queryKey: ['mastered-ids', 'grammar']})
       queryClient.invalidateQueries({queryKey: ['queued-ids', 'grammar']})
       queryClient.invalidateQueries({queryKey: ['review-items']})
+      queryClient.invalidateQueries({queryKey: ['learn-today']})
+      queryClient.invalidateQueries({queryKey: ['learn-streak']})
     },
     onError: () => {
       toast.error('Failed to mark grammar as mastered')
