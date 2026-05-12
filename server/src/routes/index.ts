@@ -7,5 +7,6 @@ import audioRoutes from './audio.route'
 import bookmarksRouter from './bookmarks.route'
 import reviewQueueRouter from './review-queue.route'
 import learnRoutes from './learn.route'
+import dashboardRoutes from './dashboard.route'
 
-export {authRoutes, onboardingRoutes, kanaRoutes, grammarRoutes, wordsRoutes, audioRoutes, bookmarksRouter, reviewQueueRouter, learnRoutes}
+export {authRoutes, onboardingRoutes, kanaRoutes, grammarRoutes, wordsRoutes, audioRoutes, bookmarksRouter, reviewQueueRouter, learnRoutes, dashboardRoutes}

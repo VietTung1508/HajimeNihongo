@@ -11,6 +11,7 @@ import {WordCard} from '@/components/features/words/components/WordCard'
 import {useBookmark} from '../hook/useBookmark'
 import {useDebounce} from '../hook/useDebounce'
 import type {WordBookmarkDTO} from '../types'
+import { useMasteredIds } from '@/components/features/review/hook/useReviewQueue'
 
 interface VocabBookmarksAccordionProps {
   page: number
@@ -37,7 +38,8 @@ export function VocabBookmarksAccordion({
   const [isExpanded, setIsExpanded] = useState(true)
   const {useGetBookmarks, toggleBookmark} = useBookmark({type: 'word'})
   const debouncedSearch = useDebounce(searchQuery, 300)
-
+  const {data: masteredIds} = useMasteredIds('word')
+  
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY)
     if (stored) {
@@ -118,6 +120,7 @@ export function VocabBookmarksAccordion({
                     onToggleSelect={onToggleSelect}
                     isBookmarked={true}
                     onToggleBookmark={() => handleToggleBookmark(word.id)}
+                    isMastered={masteredIds?.ids.includes(word.id) ?? false}
                   />
                 ))}
               </div>

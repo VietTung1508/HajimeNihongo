@@ -9,9 +9,12 @@ export const reviewApi = {
   /**
    * Get review items from the queue
    * GET /review-queue/items
+   * @param type - Optional filter by type ('word', 'grammar', or undefined for all)
    */
-  getReviewItems: async (): Promise<ReviewItemsResponse> => {
-    const response = await apiClient.get<ReviewItemsResponse>('/review-queue/items')
+  getReviewItems: async (type?: 'word' | 'grammar'): Promise<ReviewItemsResponse> => {
+    const response = await apiClient.get<ReviewItemsResponse>('/review-queue/items', {
+      params: type ? {type} : undefined,
+    })
     return response.data
   },
 
@@ -115,6 +118,19 @@ export const reviewApi = {
   unmarkGrammarAsMastered: async (ids: number[]): Promise<{unmarked: number}> => {
     const response = await apiClient.delete<{unmarked: number}>('/review-queue/grammar/mastered', {
       data: {ids},
+    })
+    return response.data
+  },
+
+  /**
+   * Record a review attempt
+   * POST /review-queue/attempts
+   */
+  recordReviewAttempt: async (wordId: number | null, grammarId: number | null, isCorrect: boolean): Promise<{id: number; reviewedAt: string}> => {
+    const response = await apiClient.post<{id: number; reviewedAt: string}>('/review-queue/attempts', {
+      wordId,
+      grammarId,
+      isCorrect,
     })
     return response.data
   },

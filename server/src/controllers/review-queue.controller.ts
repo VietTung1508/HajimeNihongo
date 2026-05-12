@@ -39,19 +39,32 @@ type ReviewItemResponse = WordReviewItemResponse | GrammarReviewItemResponse
 interface GetReviewItemsResponse {
   items: ReviewItemResponse[]
   total: number
+  counts?: {
+    word: number
+    grammar: number
+  }
 }
 
 export const getReviewItems = async (req: Request, res: Response) => {
   try {
     const em = DI.em
     const userId = req.user!.id
+    const type = req.query.type as 'word' | 'grammar' | undefined
 
     const user = await em.findOne(User, userId)
     if (!user) {
       return res.status(404).json({error: 'User not found'})
     }
 
-    const reviewItems = await em.find(ReviewQueue, {user}, {
+    // Build where clause based on type filter
+    const where: any = {user}
+    if (type === 'word') {
+      where.word = {$ne: null}
+    } else if (type === 'grammar') {
+      where.grammar = {$ne: null}
+    }
+
+    const reviewItems = await em.find(ReviewQueue, where, {
       populate: ['word', 'word.meanings', 'grammar'],
       orderBy: {createdAt: 'asc'},
     })
@@ -82,9 +95,17 @@ export const getReviewItems = async (req: Request, res: Response) => {
       return null
     }).filter((item: ReviewItemResponse | null): item is ReviewItemResponse => item !== null)
 
+    // Get counts by type
+    const [, wordCount] = await em.findAndCount(ReviewQueue, {user, word: {$ne: null}})
+    const [, grammarCount] = await em.findAndCount(ReviewQueue, {user, grammar: {$ne: null}})
+
     const response: GetReviewItemsResponse = {
       items,
       total: items.length,
+      counts: {
+        word: wordCount,
+        grammar: grammarCount,
+      },
     }
 
     res.json(response)

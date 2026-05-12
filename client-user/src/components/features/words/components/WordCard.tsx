@@ -89,12 +89,7 @@ export function WordCard({
           </div>
         </div>
 
-        {/* Meanings */}
-        <p className='text-sm text-muted-foreground line-clamp-2 mb-3'>
-          {word.meanings.join(', ')}
-        </p>
-
-        <div className='flex items-center gap-1 justify-start'>
+        <div className='flex items-center gap-1 justify-start  mb-3'>
           {word.jlptLevel != null && (
             <Badge variant='secondary' className='text-xs'>
               {JLPT_LABELS[word.jlptLevel] ?? `N${word.jlptLevel}`}
@@ -112,6 +107,11 @@ export function WordCard({
             </Badge>
           )}
         </div>
+
+        {/* Meanings */}
+        <p className='text-sm text-muted-foreground line-clamp-2'>
+          {word.meanings.join(', ')}
+        </p>
       </CardContent>
     </Card>
   )

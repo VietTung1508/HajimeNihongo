@@ -12,6 +12,7 @@ import {
   unmarkWordAsMastered,
   unmarkGrammarAsMastered,
 } from '../controllers/review-queue.controller'
+import {recordReviewAttempt} from '../controllers/dashboard.controller'
 import {auth} from '../middleware/auth.middleware'
 
 const router = Router()
@@ -38,5 +39,8 @@ router.get('/ids', getQueuedIds)
 
 // Get mastered IDs by type
 router.get('/mastered', getMasteredIds)
+
+// Record review attempt
+router.post('/attempts', recordReviewAttempt)
 
 export default router

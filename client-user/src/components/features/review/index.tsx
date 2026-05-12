@@ -1,7 +1,7 @@
 'use client'
 
 import {useState, useEffect} from 'react'
-import {useRouter} from 'next/navigation'
+import {useRouter, useSearchParams} from 'next/navigation'
 import {ModeSelector, type ReviewMode} from './components/ModeSelector'
 import {FlashcardCard} from './components/FlashcardCard'
 import {QuizCard} from './components/QuizCard'
@@ -10,7 +10,7 @@ import {HybridCard} from './components/HybridCard'
 import {ReviewProgress} from './components/ReviewProgress'
 import {ReviewSettings} from './components/ReviewSettings'
 import {ReviewSummary} from './components/ReviewSummary'
-import {useReviewItems, useMarkAsMastered} from './hook/useReviewQueue'
+import {useReviewItems, useMarkAsMastered, useRecordReviewAttempt} from './hook/useReviewQueue'
 import {ReviewItem} from './types'
 import {Loader2, Inbox, LogOut} from 'lucide-react'
 import {Button} from '@/components/ui/button'
@@ -35,8 +35,14 @@ interface ReviewStats {
 
 export function ReviewMain() {
   const router = useRouter()
-  const {data: items, isLoading, error} = useReviewItems()
+  const searchParams = useSearchParams()
+  const typeParam = searchParams.get('type')
+  // Map 'vocab' to 'word' for the API
+  const reviewType = typeParam === 'vocab' ? 'word' : typeParam === 'grammar' ? 'grammar' : undefined
+
+  const {data: items, isLoading, error} = useReviewItems(reviewType)
   const {markWord, markGrammar} = useMarkAsMastered()
+  const {mutate: recordAttempt} = useRecordReviewAttempt()
 
   const [phase, setPhase] = useState<ReviewPhase>('mode-select')
   const [mode, setMode] = useState<ReviewMode>('flashcard')
@@ -62,6 +68,13 @@ export function ReviewMain() {
     const currentItem = sessionItems[currentIndex]
     if (!currentItem) return
 
+    // Record the attempt (for both correct and incorrect answers)
+    if (currentItem.type === 'word') {
+      recordAttempt({wordId: currentItem.id, grammarId: null, isCorrect: correct})
+    } else if (currentItem.type === 'grammar') {
+      recordAttempt({wordId: null, grammarId: currentItem.id, isCorrect: correct})
+    }
+
     if (correct) {
       setStats(prev => ({...prev, correct: prev.correct + 1}))
 
@@ -85,6 +98,16 @@ export function ReviewMain() {
   }
 
   const handleRemove = () => {
+    const currentItem = sessionItems[currentIndex]
+    if (!currentItem) return
+
+    // Record the incorrect attempt when skipping
+    if (currentItem.type === 'word') {
+      recordAttempt({wordId: currentItem.id, grammarId: null, isCorrect: false})
+    } else if (currentItem.type === 'grammar') {
+      recordAttempt({wordId: null, grammarId: currentItem.id, isCorrect: false})
+    }
+
     setStats(prev => ({...prev, retries: prev.retries + 1}))
 
     setSessionItems(prev => prev.filter((_, index) => index !== currentIndex))
@@ -186,15 +209,21 @@ export function ReviewMain() {
   const completedCount = stats.total - sessionItems.length
 
   return (
-    <div className="container mx-auto min-h-screen px-4 py-8 max-w-4xl">
-      <div className="mb-4">
-        <ReviewSettings currentMode={mode} onModeChange={setMode} />
-      </div>
+    <div className="container mx-auto min-h-screen px-4 py-8 max-w-4xl relative">
+      <ReviewSettings currentMode={mode} onModeChange={setMode} />
 
-      <div className="mb-8 flex items-center justify-between gap-4">
-        <div className="flex-1">
-          <ReviewProgress current={completedCount} total={stats.total} />
-        </div>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={handleEndSession}
+        className="absolute top-4 right-4 gap-2 text-muted-foreground hover:text-destructive shrink-0 z-10"
+      >
+        <LogOut className="size-4" />
+        End Session
+      </Button>
+
+      <div className="mb-8 mt-8">
+        <ReviewProgress current={completedCount} total={stats.total} />
       </div>
 
       <div className="mb-8 flex items-center justify-center">
@@ -237,7 +266,7 @@ export function ReviewMain() {
           <AlertDialogHeader>
             <AlertDialogTitle>End Review Session?</AlertDialogTitle>
             <AlertDialogDescription>
-              You will lose this current session. Items that passed will be mastered, and all items not answered yet will still remain in review.
+              You will end this session early. Items answered correctly will be mastered. Remaining items will stay in your review queue for next time.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -248,16 +277,6 @@ export function ReviewMain() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      <Button
-          variant="outline"
-          size="sm"
-          onClick={handleEndSession}
-          className="gap-2 text-muted-foreground hover:text-destructive shrink-0 absolute right-4 top-4 z-10"
-        >
-          <LogOut className="size-4" />
-          End Session
-        </Button>
     </div>
   )
 }
