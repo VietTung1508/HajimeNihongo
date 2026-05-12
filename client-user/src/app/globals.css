@@ -162,3 +162,60 @@
     height: 0;
   }
 }
+
+/* Sakura color palette */
+@layer base {
+  :root {
+    --color-sakura-50: 255 240 245;
+    --color-sakura-100: 255 220 230;
+    --color-sakura-200: 255 190 210;
+    --color-sakura-300: 255 160 190;
+    --color-sakura-400: 255 130 170;
+    --color-sakura-500: 255 100 150;
+    --color-sakura-600: 230 80 130;
+    --color-sakura-700: 200 60 110;
+    --color-sakura-800: 170 40 90;
+    --color-sakura-900: 140 20 70;
+    --color-sakura-950: 100 10 50;
+  }
+}
+
+/* Custom animations */
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.05);
+  }
+}
+
+@utility animate-pulse-slow {
+  animation: pulse-slow 4s ease-in-out infinite;
+}
+
+/* Font display variable */
+@layer base {
+  :root {
+    --font-display: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  }
+}
+
+/* Custom scrollbar for dashboard */
+@layer components {
+  .dashboard-scroll::-webkit-scrollbar {
+    width: 6px;
+  }
+  .dashboard-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .dashboard-scroll::-webkit-scrollbar-thumb {
+    background: rgba(139, 92, 246, 0.3);
+    border-radius: 999px;
+  }
+  .dashboard-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(139, 92, 246, 0.5);
+  }
+}

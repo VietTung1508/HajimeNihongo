@@ -10,13 +10,38 @@ import {toast} from 'sonner'
  */
 
 /**
+ * Record a review attempt (correct/incorrect)
+ * This creates a review_history record which powers:
+ * - Learning Activity chart
+ * - Weak Areas analysis
+ */
+export function useRecordReviewAttempt() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({wordId, grammarId, isCorrect}: {
+      wordId: number | null
+      grammarId: number | null
+      isCorrect: boolean
+    }) => reviewApi.recordReviewAttempt(wordId, grammarId, isCorrect),
+    onSuccess: () => {
+      // Invalidate dashboard queries that depend on review history
+      queryClient.invalidateQueries({queryKey: ['dashboard-activity']})
+      queryClient.invalidateQueries({queryKey: ['dashboard-weak-areas']})
+    },
+  })
+}
+
+
+/**
  * Fetch review items from the queue
+ * @param type - Optional filter by type ('word', 'grammar', or undefined for all)
  * @returns React Query result with review items data
  */
-export function useReviewItems() {
+export function useReviewItems(type?: 'word' | 'grammar') {
   return useQuery({
-    queryKey: ['review-items'],
-    queryFn: () => reviewApi.getReviewItems(),
+    queryKey: ['review-items', type],
+    queryFn: () => reviewApi.getReviewItems(type),
     staleTime: 5 * 60 * 1000, // 5 minutes
   })
 }
@@ -68,6 +93,7 @@ export function useAddToQueue() {
       }
       queryClient.invalidateQueries({queryKey: ['queued-ids', 'word']})
       queryClient.invalidateQueries({queryKey: ['review-items']})
+      queryClient.invalidateQueries({queryKey: ['review-queue-summary']})
     },
     onError: () => {
       toast.error('Failed to add words to review queue')
@@ -85,6 +111,7 @@ export function useAddToQueue() {
       }
       queryClient.invalidateQueries({queryKey: ['queued-ids', 'grammar']})
       queryClient.invalidateQueries({queryKey: ['review-items']})
+      queryClient.invalidateQueries({queryKey: ['review-queue-summary']})
     },
     onError: () => {
       toast.error('Failed to add grammar points to review queue')
@@ -117,6 +144,7 @@ export function useRemoveFromQueue() {
       }
       queryClient.invalidateQueries({queryKey: ['queued-ids', 'word']})
       queryClient.invalidateQueries({queryKey: ['review-items']})
+      queryClient.invalidateQueries({queryKey: ['review-queue-summary']})
     },
     onError: () => {
       toast.error('Failed to remove words from review queue')
@@ -131,6 +159,7 @@ export function useRemoveFromQueue() {
       }
       queryClient.invalidateQueries({queryKey: ['queued-ids', 'grammar']})
       queryClient.invalidateQueries({queryKey: ['review-items']})
+      queryClient.invalidateQueries({queryKey: ['review-queue-summary']})
     },
     onError: () => {
       toast.error('Failed to remove grammar points from review queue')
@@ -164,8 +193,11 @@ export function useMarkAsMastered() {
       queryClient.invalidateQueries({queryKey: ['mastered-ids', 'word']})
       queryClient.invalidateQueries({queryKey: ['queued-ids', 'word']})
       queryClient.invalidateQueries({queryKey: ['review-items']})
+      queryClient.invalidateQueries({queryKey: ['review-queue-summary']})
       queryClient.invalidateQueries({queryKey: ['learn-today']})
       queryClient.invalidateQueries({queryKey: ['learn-streak']})
+      queryClient.invalidateQueries({queryKey: ['dashboard-activity']})
+      queryClient.invalidateQueries({queryKey: ['dashboard-weak-areas']})
     },
     onError: () => {
       toast.error('Failed to mark words as mastered')
@@ -181,8 +213,11 @@ export function useMarkAsMastered() {
       queryClient.invalidateQueries({queryKey: ['mastered-ids', 'grammar']})
       queryClient.invalidateQueries({queryKey: ['queued-ids', 'grammar']})
       queryClient.invalidateQueries({queryKey: ['review-items']})
+      queryClient.invalidateQueries({queryKey: ['review-queue-summary']})
       queryClient.invalidateQueries({queryKey: ['learn-today']})
       queryClient.invalidateQueries({queryKey: ['learn-streak']})
+      queryClient.invalidateQueries({queryKey: ['dashboard-activity']})
+      queryClient.invalidateQueries({queryKey: ['dashboard-weak-areas']})
     },
     onError: () => {
       toast.error('Failed to mark grammar as mastered')

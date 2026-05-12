@@ -10,6 +10,7 @@ import {GrammarCard} from '@/components/features/grammar/components/GrammarCard'
 import {useBookmark} from '../hook/useBookmark'
 import {useDebounce} from '../hook/useDebounce'
 import type {GrammarBookmarkDTO} from '../types'
+import { useMasteredIds } from '@/components/features/review/hook/useReviewQueue'
 
 interface GrammarBookmarksAccordionProps {
   page: number
@@ -36,6 +37,8 @@ export function GrammarBookmarksAccordion({
   const [isExpanded, setIsExpanded] = useState(true)
   const {useGetBookmarks, toggleBookmark} = useBookmark({type: 'grammar'})
   const debouncedSearch = useDebounce(searchQuery, 300)
+  const {data: masteredIds} = useMasteredIds('grammar')
+  
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY)
@@ -57,7 +60,10 @@ export function GrammarBookmarksAccordion({
     sort,
   )
 
+
   const bookmarks = data?.data ?? []
+  console.log(bookmarks)
+
   const total = data?.total ?? 0
 
   const handleToggleBookmark = (grammarId: number) => {
@@ -119,6 +125,7 @@ export function GrammarBookmarksAccordion({
                     isSelectionMode={isSelectionMode}
                     isSelected={selectedIds.has(grammar.id)}
                     onToggleSelect={onToggleSelect}
+                    isMastered={masteredIds?.ids.includes(grammar.id) ?? false}
                   />
                 ))}
               </div>

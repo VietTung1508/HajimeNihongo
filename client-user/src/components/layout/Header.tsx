@@ -65,26 +65,26 @@ const Header = () => {
               </>
             ) : (
               <div className='flex items-center gap-4'>
-                <Link href='/learn'>
-                  <Button variant='ghost' className='text-white gap-2'>
+                <Link href='/learn' className='relative'>
+                  <Button variant='ghost' className='text-white'>
                     Learn
-                    {learnCount > 0 && (
-                      <span className='bg-red-500 text-white text-xs rounded-full px-2 py-0.5'>
-                        {learnCount}
-                      </span>
-                    )}
                   </Button>
+                  {learnCount > 0 && (
+                    <span className='absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 min-w-5 flex items-center justify-center px-1'>
+                      {learnCount}
+                    </span>
+                  )}
                 </Link>
 
-                <Link href='/review'>
-                  <Button variant='ghost' className='text-white gap-2'>
+                <Link href='/review' className='relative'>
+                  <Button variant='ghost' className='text-white'>
                     Review
-                    {reviewCount > 0 && (
-                      <span className='bg-red-500 text-white text-xs rounded-full px-2 py-0.5'>
-                        {reviewCount}
-                      </span>
-                    )}
                   </Button>
+                  {reviewCount > 0 && (
+                    <span className='absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 min-w-5 flex items-center justify-center px-1'>
+                      {reviewCount}
+                    </span>
+                  )}
                 </Link>
 
                 <DropdownMenu>
@@ -125,12 +125,6 @@ const Header = () => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align='end'>
-                    <DropdownMenuItem className='flex items-center gap-2'>
-                      <Zap className='w-4 h-4' /> Cram
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className='flex items-center gap-2'>
-                      <BookOpen className='w-4 h-4' /> Reading Practice
-                    </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link href='/kana' className='flex items-center gap-2'>
                         <Languages className='w-4 h-4' /> Hiragana & Katakana

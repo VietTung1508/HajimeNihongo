@@ -32,6 +32,10 @@ export interface ReviewItem {
 export interface ReviewItemsResponse {
   items: ReviewItem[]
   total: number
+  counts?: {
+    word: number
+    grammar: number
+  }
 }
 
 /**
