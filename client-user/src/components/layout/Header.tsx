@@ -5,7 +5,7 @@ import {Button} from '../ui/button'
 import Container from './Container'
 import {useEffect, useState} from 'react'
 import {useAppSelector} from '@/redux/hooks'
-import {User, BookOpen, Library, Bookmark, Zap, Languages} from 'lucide-react'
+import {User, BookOpen, Library, Bookmark, Zap, Languages, Bot} from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -128,6 +128,12 @@ const Header = () => {
                     <DropdownMenuItem asChild>
                       <Link href='/kana' className='flex items-center gap-2'>
                         <Languages className='w-4 h-4' /> Hiragana & Katakana
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href='/chat' className='flex items-center gap-2'>
+                        <Bot className='w-4 h-4' /> AI Chat
                       </Link>
                     </DropdownMenuItem>
                   </DropdownMenuContent>

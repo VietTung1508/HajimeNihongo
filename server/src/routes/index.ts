@@ -9,5 +9,6 @@ import reviewQueueRouter from './review-queue.route'
 import learnRoutes from './learn.route'
 import dashboardRoutes from './dashboard.route'
 import placementTestRoutes from './placement-test.route'
+import chatRoutes from './chat.route'
 
-export {authRoutes, onboardingRoutes, kanaRoutes, grammarRoutes, wordsRoutes, audioRoutes, bookmarksRouter, reviewQueueRouter, learnRoutes, dashboardRoutes, placementTestRoutes}
+export {authRoutes, onboardingRoutes, kanaRoutes, grammarRoutes, wordsRoutes, audioRoutes, bookmarksRouter, reviewQueueRouter, learnRoutes, dashboardRoutes, placementTestRoutes, chatRoutes}

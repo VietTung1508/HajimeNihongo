@@ -84,7 +84,7 @@ export function WordCard({
               </button>
             )}
             <div onClick={handleDotClick}>
-              <WordCardDotMenu wordId={word.id} isBookmarked={!!isBookmarked} />
+              <WordCardDotMenu wordId={word.id} wordLabel={headerLabel} isBookmarked={!!isBookmarked} />
             </div>
           </div>
         </div>

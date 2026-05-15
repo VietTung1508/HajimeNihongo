@@ -12,6 +12,8 @@ import {StatsCard} from './StatsCard'
 import {PlacementQuiz} from '../placement-quiz'
 import {LevelEnum} from '../onboarding/types'
 import {onboardingApi} from '../onboarding/services/api'
+import {AIChatBanner} from './components/AIChatBanner'
+import {RecentChatSessions} from './components/RecentChatSessions'
 
 const DashboardMain = () => {
   const router = useRouter()
@@ -76,6 +78,11 @@ const DashboardMain = () => {
 
         {/* Bento Grid Layout - Balanced 4-column grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+          {/* AI Chat announcement banner — full width */}
+          <div className="col-span-full">
+            <AIChatBanner />
+          </div>
+
           {/* Row 1: Learning Section (wide) + Stats Card (narrow) */}
           <div className="lg:col-span-3">
             <LearningSection />
@@ -96,6 +103,11 @@ const DashboardMain = () => {
 
           <div className="lg:col-span-1">
             <WeakAreas />
+          </div>
+
+          {/* Row 3: Recent chat sessions */}
+          <div className="lg:col-span-2 md:col-span-2">
+            <RecentChatSessions />
           </div>
         </div>
       </div>
