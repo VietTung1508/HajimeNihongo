@@ -1,11 +1,13 @@
 'use client'
 
-import {MoreVertical, BookmarkPlus, CheckCheck, BookmarkIcon} from 'lucide-react'
+import {useRouter} from 'next/navigation'
+import {MoreVertical, BookmarkPlus, CheckCheck, BookmarkIcon, Bot} from 'lucide-react'
 import {Button} from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {useBookmark} from '@/features/bookmarks/hook/useBookmark'
@@ -13,10 +15,12 @@ import { useAddToQueue, useQueuedIds, useRemoveFromQueue, useMarkAsMastered, use
 
 interface GrammarCardDotMenuProps {
   grammarId: number
+  grammarPoint: string
   isBookmarked?: boolean
 }
 
-export function GrammarCardDotMenu({grammarId, isBookmarked = false}: GrammarCardDotMenuProps) {
+export function GrammarCardDotMenu({grammarId, grammarPoint, isBookmarked = false}: GrammarCardDotMenuProps) {
+  const router = useRouter()
   const {toggleBookmark} = useBookmark({type: 'grammar'})
   const {data: queuedIds} = useQueuedIds('grammar')
   const {data: masteredIds} = useMasteredIds('grammar')
@@ -48,6 +52,11 @@ export function GrammarCardDotMenu({grammarId, isBookmarked = false}: GrammarCar
     } else {
       markGrammar([grammarId])
     }
+  }
+
+  const handleAskChatbot = () => {
+    const prompt = `Explain this grammar point: ${grammarPoint}`
+    router.push(`/chat?ask=${encodeURIComponent(prompt)}`)
   }
 
   const isProcessing = isAddingGrammar || isRemovingGrammar || isMarkingGrammar || isUnmarkingGrammar
@@ -88,6 +97,11 @@ export function GrammarCardDotMenu({grammarId, isBookmarked = false}: GrammarCar
         <DropdownMenuItem onClick={handleBookmarkClick}>
           <BookmarkIcon size={15} className='mr-2' />
           {isBookmarked ? 'Remove from Bookmark' : 'Add to Bookmark'}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleAskChatbot}>
+          <Bot size={15} className='mr-2' />
+          Ask Chatbot
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

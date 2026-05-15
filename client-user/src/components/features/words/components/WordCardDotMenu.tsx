@@ -1,11 +1,13 @@
 'use client'
 
-import {MoreVertical, BookmarkPlus, CheckCheck, BookmarkIcon} from 'lucide-react'
+import {useRouter} from 'next/navigation'
+import {MoreVertical, BookmarkPlus, CheckCheck, BookmarkIcon, Bot} from 'lucide-react'
 import {Button} from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {useBookmark} from '@/features/bookmarks/hook/useBookmark'
@@ -13,10 +15,12 @@ import { useAddToQueue, useQueuedIds, useRemoveFromQueue, useMarkAsMastered, use
 
 interface WordCardDotMenuProps {
   wordId: number
+  wordLabel: string
   isBookmarked?: boolean
 }
 
-export function WordCardDotMenu({wordId, isBookmarked = false}: WordCardDotMenuProps) {
+export function WordCardDotMenu({wordId, wordLabel, isBookmarked = false}: WordCardDotMenuProps) {
+  const router = useRouter()
   const {toggleBookmark} = useBookmark({type: 'word'})
   const {data: queuedIds} = useQueuedIds('word')
   const {data: masteredIds} = useMasteredIds('word')
@@ -48,6 +52,11 @@ export function WordCardDotMenu({wordId, isBookmarked = false}: WordCardDotMenuP
     } else {
       markWord([wordId])
     }
+  }
+
+  const handleAskChatbot = () => {
+    const prompt = `Explain this word: ${wordLabel}`
+    router.push(`/chat?ask=${encodeURIComponent(prompt)}`)
   }
 
   const isProcessing = isAddingWord || isRemovingWord || isMarkingWord || isUnmarkingWord
@@ -88,6 +97,11 @@ export function WordCardDotMenu({wordId, isBookmarked = false}: WordCardDotMenuP
         <DropdownMenuItem onClick={handleBookmarkClick}>
           <BookmarkIcon size={15} className='mr-2' />
           {isBookmarked ? 'Remove from Bookmark' : 'Add to Bookmark'}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleAskChatbot}>
+          <Bot size={15} className='mr-2' />
+          Ask Chatbot
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -79,7 +79,7 @@ export function GrammarCard({
               </button>
             )}
             <div onClick={(e) => e.stopPropagation()}>
-              <GrammarCardDotMenu grammarId={grammar.id} isBookmarked={!!isBookmarked} />
+              <GrammarCardDotMenu grammarId={grammar.id} grammarPoint={grammar.grammarPoint} isBookmarked={!!isBookmarked} />
             </div>
           </div>
         </div>

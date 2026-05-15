@@ -5,9 +5,11 @@ import {GrammarExample} from './entities/GrammarExample'
 import {DailyLearn} from './entities/DailyLearn'
 import {DailyLearnItem} from './entities/DailyLearnItem'
 import {Streak} from './entities/Streak'
+import {ChatSession} from './entities/ChatSession'
+import {ChatMessage} from './entities/ChatMessage'
 
 export default defineConfig({
-  entities: ['dist/entities', Grammar, GrammarExample, DailyLearn, DailyLearnItem, Streak],
+  entities: ['dist/entities', Grammar, GrammarExample, DailyLearn, DailyLearnItem, Streak, ChatSession, ChatMessage],
   entitiesTs: ['src/entities'],
   dbName: 'hajimenihongo',
   user: 'admin',
