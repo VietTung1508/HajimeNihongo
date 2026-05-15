@@ -1,10 +1,21 @@
 'use client'
 
 import {Card} from '@/components/ui/card'
-import {Progress} from '@/components/ui/progress'
 import {useStats} from './hooks/use-dashboard-data'
 import {Loader2} from 'lucide-react'
 import {Flame, Calendar, Target, BookOpen} from 'lucide-react'
+import {CrownBadge} from '@/components/ui/crown-badge'
+import {LockedBadge} from '@/components/ui/locked-badge'
+
+const JLPT_LEVELS = ['N5', 'N4', 'N3', 'N2', 'N1'] as const
+
+const levelColors = {
+  N5: 'bg-emerald-500 dark:bg-emerald-400',
+  N4: 'bg-blue-500 dark:bg-blue-400',
+  N3: 'bg-indigo-500 dark:bg-indigo-400',
+  N2: 'bg-violet-500 dark:bg-violet-400',
+  N1: 'bg-rose-500 dark:bg-rose-400',
+}
 
 export function StatsCard() {
   const {data, isLoading, error} = useStats()
@@ -52,26 +63,55 @@ export function StatsCard() {
             JLPT Progress
           </h3>
           <div className="space-y-3">
-            {(Object.keys(data.jlptProgress) as Array<keyof typeof data.jlptProgress>).map((level) => {
+            {JLPT_LEVELS.map((level, index) => {
               const progress = data.jlptProgress[level]
               const percent = progress.total > 0 ? (progress.mastered / progress.total) * 100 : 0
-              const levelColors = {
-                N5: 'bg-emerald-500 dark:bg-emerald-400',
-                N4: 'bg-blue-500 dark:bg-blue-400',
-                N3: 'bg-indigo-500 dark:bg-indigo-400',
-                N2: 'bg-violet-500 dark:bg-violet-400',
-                N1: 'bg-rose-500 dark:bg-rose-400'
-              }
+              const previousLevel = JLPT_LEVELS[index - 1]
+              const isUnlocked = index === 0 || data.jlptProgress[previousLevel]?.isMastered === true
+
               return (
-                <div key={level} className="space-y-1.5">
+                <div
+                  key={level}
+                  className={`space-y-1.5 rounded-md px-2 py-1.5 transition-colors ${
+                    isUnlocked
+                      ? 'bg-transparent'
+                      : 'bg-slate-50/80 dark:bg-slate-800/40'
+                  }`}
+                >
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-medium text-slate-700 dark:text-slate-300">{level}</span>
-                    <span className="text-slate-500 dark:text-slate-400">{progress.mastered}/{progress.total}</span>
+                    <span
+                      className={`flex items-center gap-1.5 font-medium ${
+                        isUnlocked
+                          ? 'text-slate-700 dark:text-slate-300'
+                          : 'text-slate-400 dark:text-slate-500'
+                      }`}
+                    >
+                      {level}
+                      {progress.isMastered && <CrownBadge size={13} />}
+                      {!isUnlocked && <LockedBadge size={13} />}
+                    </span>
+                    <span
+                      className={`flex items-center gap-2 ${
+                        isUnlocked
+                          ? 'text-slate-500 dark:text-slate-400'
+                          : 'text-slate-400 dark:text-slate-500'
+                      }`}
+                    >
+                      <span>{progress.mastered}/{progress.total}</span>
+                    </span>
                   </div>
-                  <div className="h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                  <div
+                    className={`h-1.5 rounded-full overflow-hidden ${
+                      isUnlocked
+                        ? 'bg-slate-100 dark:bg-slate-800'
+                        : 'bg-slate-200 dark:bg-slate-800'
+                    }`}
+                  >
                     <div
-                      className={`h-full ${levelColors[level as keyof typeof levelColors]} rounded-full transition-all duration-300`}
-                      style={{width: `${percent}%`}}
+                      className={`h-full ${
+                        isUnlocked ? levelColors[level] : 'bg-slate-300 dark:bg-slate-700'
+                      } rounded-full transition-all duration-300`}
+                      style={{width: `${isUnlocked ? percent : 0}%`}}
                     />
                   </div>
                 </div>

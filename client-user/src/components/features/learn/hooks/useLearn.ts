@@ -4,6 +4,23 @@ import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 import {learnApi} from '../services/api'
 import {toast} from 'sonner'
 
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (typeof error === 'object' && error !== null) {
+    const maybeAxiosError = error as {
+      response?: {data?: {error?: unknown}}
+      message?: unknown
+    }
+    if (typeof maybeAxiosError.response?.data?.error === 'string') {
+      return maybeAxiosError.response.data.error
+    }
+    if (typeof maybeAxiosError.message === 'string') {
+      return maybeAxiosError.message
+    }
+  }
+
+  return fallback
+}
+
 export function useTodayLearn() {
   return useQuery({
     queryKey: ['learn-today'],
@@ -19,6 +36,7 @@ export function useMarkItemAsViewed() {
     mutationFn: (itemId: number) => learnApi.markItemAsViewed(itemId),
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ['learn-today']})
+      queryClient.invalidateQueries({queryKey: ['learn-progress']})
     },
     onError: () => {
       toast.error('Failed to mark item as viewed')
@@ -52,7 +70,9 @@ export function usePushToReview() {
         toast.info(data.message || 'No new items to push')
       }
       queryClient.invalidateQueries({queryKey: ['learn-today']})
+      queryClient.invalidateQueries({queryKey: ['learn-progress']})
       queryClient.invalidateQueries({queryKey: ['review-items']})
+      queryClient.invalidateQueries({queryKey: ['review-queue-summary']})
     },
     onError: () => {
       toast.error('Failed to push items to review')
@@ -80,6 +100,7 @@ export function useGenerateDailyLearn() {
     mutationFn: () => learnApi.generateDailyLearn(),
     onSuccess: async (data) => {
       await queryClient.invalidateQueries({queryKey: ['learn-today'], refetchType: 'active'})
+      queryClient.invalidateQueries({queryKey: ['learn-progress']})
       await queryClient.refetchQueries({queryKey: ['learn-today']})
 
       if (data.items && data.items.length > 0) {
@@ -88,10 +109,9 @@ export function useGenerateDailyLearn() {
         toast.info(data.message || 'No items generated')
       }
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error('Generate daily learn error:', error)
-      const message = error?.response?.data?.error || error?.message || 'Failed to generate daily learn'
-      toast.error(message)
+      toast.error(getErrorMessage(error, 'Failed to generate daily learn'))
     },
   })
 
@@ -109,6 +129,7 @@ export function useGenerateExtraBatch() {
     onSuccess: async (data) => {
       // Force immediate refetch
       await queryClient.invalidateQueries({queryKey: ['learn-today'], refetchType: 'active'})
+      queryClient.invalidateQueries({queryKey: ['learn-progress']})
       await queryClient.refetchQueries({queryKey: ['learn-today']})
 
       if (data.items && data.items.length > 0) {
@@ -117,10 +138,9 @@ export function useGenerateExtraBatch() {
         toast.info(data.message || 'No items generated - you may have mastered all available items at your current level!')
       }
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error('Generate extra batch error:', error)
-      const message = error?.response?.data?.error || error?.message || 'Failed to generate extra batch'
-      toast.error(message)
+      toast.error(getErrorMessage(error, 'Failed to generate extra batch'))
     },
   })
 

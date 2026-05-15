@@ -198,6 +198,10 @@ export function useMarkAsMastered() {
       queryClient.invalidateQueries({queryKey: ['learn-streak']})
       queryClient.invalidateQueries({queryKey: ['dashboard-activity']})
       queryClient.invalidateQueries({queryKey: ['dashboard-weak-areas']})
+      queryClient.invalidateQueries({queryKey: ['dashboard-stats']})
+      queryClient.invalidateQueries({queryKey: ['unlocked-levels']})
+      queryClient.invalidateQueries({queryKey: ['words']})
+      queryClient.invalidateQueries({queryKey: ['grammar-list']})
     },
     onError: () => {
       toast.error('Failed to mark words as mastered')
@@ -218,6 +222,10 @@ export function useMarkAsMastered() {
       queryClient.invalidateQueries({queryKey: ['learn-streak']})
       queryClient.invalidateQueries({queryKey: ['dashboard-activity']})
       queryClient.invalidateQueries({queryKey: ['dashboard-weak-areas']})
+      queryClient.invalidateQueries({queryKey: ['dashboard-stats']})
+      queryClient.invalidateQueries({queryKey: ['unlocked-levels']})
+      queryClient.invalidateQueries({queryKey: ['words']})
+      queryClient.invalidateQueries({queryKey: ['grammar-list']})
     },
     onError: () => {
       toast.error('Failed to mark grammar as mastered')
@@ -232,6 +240,10 @@ export function useMarkAsMastered() {
       }
       queryClient.invalidateQueries({queryKey: ['mastered-ids', 'word']})
       queryClient.invalidateQueries({queryKey: ['queued-ids', 'word']})
+      queryClient.invalidateQueries({queryKey: ['dashboard-stats']})
+      queryClient.invalidateQueries({queryKey: ['unlocked-levels']})
+      queryClient.invalidateQueries({queryKey: ['words']})
+      queryClient.invalidateQueries({queryKey: ['grammar-list']})
     },
     onError: () => {
       toast.error('Failed to unmark words as mastered')
@@ -246,6 +258,10 @@ export function useMarkAsMastered() {
       }
       queryClient.invalidateQueries({queryKey: ['mastered-ids', 'grammar']})
       queryClient.invalidateQueries({queryKey: ['queued-ids', 'grammar']})
+      queryClient.invalidateQueries({queryKey: ['dashboard-stats']})
+      queryClient.invalidateQueries({queryKey: ['unlocked-levels']})
+      queryClient.invalidateQueries({queryKey: ['words']})
+      queryClient.invalidateQueries({queryKey: ['grammar-list']})
     },
     onError: () => {
       toast.error('Failed to unmark grammar as mastered')

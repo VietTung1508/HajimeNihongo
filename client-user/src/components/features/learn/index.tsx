@@ -3,7 +3,7 @@
 import {useTodayLearn, usePushToReview, useGenerateDailyLearn, useGenerateExtraBatch} from './hooks/useLearn'
 import {ExtendedLearnItem, ItemState} from './types'
 import {useRouter} from 'next/navigation'
-import {useEffect, useMemo, useState} from 'react'
+import {useEffect, useMemo} from 'react'
 import {Loader2, Inbox, Flame, Calendar, Award, CheckCircle2, Plus} from 'lucide-react'
 import {Button} from '@/components/ui/button'
 import {useStreak} from './hooks/useLearn'
@@ -16,8 +16,6 @@ export function LearnMain() {
   const {generateDailyLearn, isPending: isGenerating} = useGenerateDailyLearn()
   const {generateExtraBatch, isPending: isGeneratingExtra} = useGenerateExtraBatch()
   const {data: streak, refetch: refetchStreak} = useStreak()
-
-  const [viewedCount, setViewedCount] = useState(0)
 
   // Refetch data on mount and window focus to get fresh status after reviews
   useEffect(() => {
@@ -36,11 +34,8 @@ export function LearnMain() {
     return () => window.removeEventListener('focus', handleFocus)
   }, [refetch, refetchStreak])
 
-  useEffect(() => {
-    if (todayLearn?.items) {
-      const viewed = todayLearn.items.filter(item => item.viewedAt).length
-      setViewedCount(viewed)
-    }
+  const viewedCount = useMemo(() => {
+    return todayLearn?.items?.filter(item => item.viewedAt).length ?? 0
   }, [todayLearn])
 
   const extendedItems = useMemo<ExtendedLearnItem[]>(() => {
@@ -64,7 +59,6 @@ export function LearnMain() {
 
   const allViewed = viewedCount > 0 && viewedCount === extendedItems.length
   const hasItems = extendedItems.length > 0
-  const isCompleted = todayLearn?.status === 'COMPLETED'
 
   // Check if all viewed items have already been pushed to review
   const allPushedToReview = useMemo(() => {
@@ -211,7 +205,7 @@ export function LearnMain() {
       </div>
 
       {/* Show review button for any viewed items that haven't been pushed yet */}
-      {allViewed && !allPushedToReview && !isCompleted && (
+      {allViewed && !allPushedToReview && (
         <div className="mt-8 flex justify-center">
           <Button
             size="lg"
@@ -226,7 +220,7 @@ export function LearnMain() {
       )}
 
       {/* Show completion section only when all items are mastered AND pushed to review */}
-      {allViewed && allPushedToReview && (isCompleted || allMastered) && (
+      {allViewed && allPushedToReview && allMastered && (
         <div className="mt-8 flex flex-col items-center justify-center gap-4 p-8 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
           <CheckCircle2 className="size-16 text-green-500" />
           <h2 className="text-2xl font-bold text-green-900 dark:text-green-100">
@@ -277,7 +271,7 @@ export function LearnMain() {
       )}
 
       {/* Show "Ready for Review" when items are pushed but not all mastered yet */}
-      {allPushedToReview && !allMastered && !isCompleted && (
+      {allPushedToReview && !allMastered && (
         <div className="mt-8 flex flex-col items-center justify-center gap-4 p-8 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
           <Calendar className="size-16 text-blue-500" />
           <h2 className="text-2xl font-bold text-blue-900 dark:text-blue-100">

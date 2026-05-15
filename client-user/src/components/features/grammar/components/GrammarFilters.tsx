@@ -1,6 +1,7 @@
 'use client'
 
 import { Button } from "@/components/ui/button"
+import {LockedBadge} from '@/components/ui/locked-badge'
 
 const LEVELS = ['N5', 'N4', 'N3', 'N2', 'N1'] as const
 const LESSONS = ['All', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] as const
@@ -10,6 +11,7 @@ interface GrammarFiltersProps {
   selectedLesson: string
   onLevelChange: (level: string) => void
   onLessonChange: (lesson: string) => void
+  unlockedLevels?: string[]
 }
 
 export function GrammarFilters({
@@ -17,23 +19,32 @@ export function GrammarFilters({
   selectedLesson,
   onLevelChange,
   onLessonChange,
+  unlockedLevels,
 }: GrammarFiltersProps) {
   return (
     <div className='space-y-3'>
       <div className='grid grid-cols-10 gap-2'>
-        {LEVELS.map(level => (
-          <Button
-            key={level}
-            onClick={() => onLevelChange(level)}
-            className={`col-span-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-              selectedLevel === level
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted hover:bg-muted/80 text-muted-foreground'
-            }`}
-          >
-            {level}
-          </Button>
-        ))}
+        {LEVELS.map(level => {
+          const isUnlocked = unlockedLevels ? unlockedLevels.includes(level) : true
+
+          return (
+            <Button
+              key={level}
+              onClick={() => isUnlocked && onLevelChange(level)}
+              disabled={!isUnlocked}
+              className={`col-span-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                selectedLevel === level
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted hover:bg-muted/80 text-muted-foreground'
+              }`}
+            >
+              <span className="flex w-full items-center justify-center gap-1.5">
+                {level}
+                {!isUnlocked && <LockedBadge size={13} />}
+              </span>
+            </Button>
+          )
+        })}
       </div>
 
       <div className='grid grid-cols-11 gap-2'>

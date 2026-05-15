@@ -14,10 +14,20 @@ const SORT_OPTIONS = [
   {value: 'lowest_jlpt', label: 'Lowest JLPT'},
 ]
 
+const JLPT_OPTIONS = [
+  {value: 'all', label: 'All levels'},
+  {value: '5', label: 'N5'},
+  {value: '4', label: 'N4'},
+  {value: '3', label: 'N3'},
+  {value: '2', label: 'N2'},
+  {value: '1', label: 'N1'},
+]
+
 interface WordListHeaderProps {
   searchQuery: string
   sort: string
   jlptFilter: string
+  unlockedLevels?: string[]
   commonOnly: boolean
   selectedCount: number
   isSelectionMode: boolean
@@ -32,15 +42,25 @@ interface WordListHeaderProps {
 export function WordListHeader({
   searchQuery,
   sort,
+  jlptFilter,
+  unlockedLevels,
   commonOnly,
   selectedCount,
   isSelectionMode,
   isSearching = false,
   onSearch,
   onSortChange,
+  onJlptFilterChange,
   onCommonOnlyChange,
   onSelectItemsClick,
 }: WordListHeaderProps) {
+  const unlockedLevelValues = new Set(
+    unlockedLevels?.map(level => level.replace('N', '')) ?? [],
+  )
+  const jlptOptions = JLPT_OPTIONS.filter(
+    opt => opt.value === 'all' || unlockedLevelValues.has(opt.value),
+  )
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
@@ -75,6 +95,19 @@ export function WordListHeader({
           </SelectTrigger>
           <SelectContent>
             {SORT_OPTIONS.map(opt => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={jlptFilter} onValueChange={onJlptFilterChange}>
+          <SelectTrigger className="w-32">
+            <SelectValue placeholder="JLPT" />
+          </SelectTrigger>
+          <SelectContent>
+            {jlptOptions.map(opt => (
               <SelectItem key={opt.value} value={opt.value}>
                 {opt.label}
               </SelectItem>

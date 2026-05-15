@@ -1,6 +1,7 @@
 'use client'
 
-import {useState, useEffect, useRef} from 'react'
+import {useState, useEffect, useMemo} from 'react'
+import {useQuery} from '@tanstack/react-query'
 import {WordCard} from './components/WordCard'
 import {WordCardSkeleton} from './components/WordCardSkeleton'
 import {WordListHeader} from './components/WordListHeader'
@@ -10,6 +11,7 @@ import {EmptyState} from './components/EmptyState'
 import {useWordList} from './hook/useWordList'
 import {useBookmark} from '@/features/bookmarks/hook/useBookmark'
 import {useMasteredIds} from '@/components/features/review/hook/useReviewQueue'
+import {placementTestApi} from '@/components/features/placement-quiz/services/api'
 
 const LIMIT = 12
 
@@ -25,6 +27,7 @@ export function WordsList() {
   const {data, isLoading, isError, isSearching} = useWordList(
     searchQuery,
     sort,
+    jlptFilter,
     page,
     commonOnly,
     LIMIT,
@@ -32,13 +35,34 @@ export function WordsList() {
   const {useGetBookmarkedIds, toggleBookmark} = useBookmark({type: 'word'})
   const {data: bookmarkedIds} = useGetBookmarkedIds()
   const {data: masteredIds} = useMasteredIds('word')
+  const {data: unlockedLevels} = useQuery({
+    queryKey: ['unlocked-levels'],
+    queryFn: placementTestApi.getUnlockedLevels,
+    staleTime: 0,
+    refetchOnMount: 'always',
+  })
+
+  const unlockedLevelValues = useMemo(
+    () => unlockedLevels?.levels.map(level => level.replace('N', '')) ?? [],
+    [unlockedLevels?.levels],
+  )
 
   const words = data?.data ?? []
   const total = data?.total ?? 0
 
   useEffect(() => {
     setPage(1)
-  }, [searchQuery, sort, commonOnly])
+  }, [searchQuery, sort, jlptFilter, commonOnly])
+
+  useEffect(() => {
+    if (
+      unlockedLevels &&
+      jlptFilter !== 'all' &&
+      !unlockedLevelValues.includes(jlptFilter)
+    ) {
+      setJlptFilter('all')
+    }
+  }, [jlptFilter, unlockedLevelValues, unlockedLevels])
 
   const handleToggleSelect = (id: number) => {
     setSelectedIds((prev) => {
@@ -89,6 +113,7 @@ export function WordsList() {
             searchQuery={searchQuery}
             sort={sort}
             jlptFilter={jlptFilter}
+            unlockedLevels={unlockedLevels?.levels}
             commonOnly={commonOnly}
             selectedCount={selectedIds.size}
             isSelectionMode={isSelectionMode}

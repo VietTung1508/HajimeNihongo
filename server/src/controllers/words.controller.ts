@@ -1,6 +1,8 @@
 import {Request, Response} from 'express'
 import {DI} from '../utils/di'
 import {Word} from '../entities/Word'
+import {PlacementTestService} from '../services/placement-test.service'
+import {LevelEnum} from '../enums/onboarding.enum'
 
 export const getWordList = async (req: Request, res: Response) => {
   try {
@@ -11,6 +13,7 @@ export const getWordList = async (req: Request, res: Response) => {
       page = '1',
       limit = '24',
       commonOnly = 'false',
+      level,
     } = req.query
 
     const pageNum = Math.max(1, parseInt(page as string, 10) || 1)
@@ -28,6 +31,47 @@ export const getWordList = async (req: Request, res: Response) => {
       orderBy.jlptLevel = 'desc'
     }
 
+    // Get authenticated user ID from request (set by auth middleware)
+    const userId = req.user?.id
+    const placementTestService = new PlacementTestService(em)
+
+    // Get unlocked levels for user
+    const unlockedLevels = userId ? await placementTestService.getUnlockedLevels(userId) : []
+
+    // Convert unlocked levels to JLPT numbers
+    const unlockedJlptNumbers: (1 | 2 | 3 | 4 | 5)[] = unlockedLevels
+      .map(level => {
+        switch (level) {
+          case LevelEnum.N5:
+            return 5
+          case LevelEnum.N4:
+            return 4
+          case LevelEnum.N3:
+            return 3
+          case LevelEnum.N2:
+            return 2
+          case LevelEnum.N1:
+            return 1
+          default:
+            return null
+        }
+      })
+      .filter((jlpt): jlpt is 1 | 2 | 3 | 4 | 5 => jlpt !== null)
+
+    // Validate level filter if provided
+    let requestedJlptLevel: 1 | 2 | 3 | 4 | 5 | null = null
+    if (level && typeof level === 'string') {
+      const levelNum = parseInt(level, 10) as 1 | 2 | 3 | 4 | 5
+      if (!isNaN(levelNum) && levelNum >= 1 && levelNum <= 5) {
+        // Check if user has unlocked this level
+        if (unlockedJlptNumbers.includes(levelNum)) {
+          requestedJlptLevel = levelNum
+        } else {
+          return res.status(403).json({message: `Level N${levelNum} is not unlocked`})
+        }
+      }
+    }
+
     let data: Word[] = []
     let total = 0
 
@@ -36,6 +80,14 @@ export const getWordList = async (req: Request, res: Response) => {
     if (!searchTerm) {
       // No search query - simple query with filters
       const where: Record<string, unknown> = {}
+
+      // Add level filtering
+      if (requestedJlptLevel !== null) {
+        where.jlptLevel = requestedJlptLevel
+      } else if (unlockedJlptNumbers.length > 0) {
+        where.jlptLevel = {$in: unlockedJlptNumbers}
+      }
+
       if (isCommonOnly) {
         where.isCommon = true
       }
@@ -50,9 +102,18 @@ export const getWordList = async (req: Request, res: Response) => {
       // Search query - use raw SQL for better control
       const term = `%${searchTerm}%`
 
-      // Build the base query with commonOnly filter
-      let baseWhere = 'w.kanji ILIKE ? OR w.reading ILIKE ? OR m.text ILIKE ?'
-      let params: string[] = [term, term, term]
+      // Build the base query with commonOnly filter and level filter
+      let baseWhere = '(w.kanji ILIKE ? OR w.reading ILIKE ? OR m.text ILIKE ?)'
+      let params: Array<string | number> = [term, term, term]
+
+      // Add level filter to WHERE clause
+      if (requestedJlptLevel !== null) {
+        baseWhere += ' AND w.jlpt_level = ?'
+        params.push(requestedJlptLevel)
+      } else if (unlockedJlptNumbers.length > 0) {
+        baseWhere += ` AND w.jlpt_level IN (${unlockedJlptNumbers.map(() => '?').join(', ')})`
+        params.push(...unlockedJlptNumbers)
+      }
 
       // Add commonOnly filter to WHERE clause
       if (isCommonOnly) {
@@ -128,6 +189,34 @@ export const getWordDetail = async (req: Request, res: Response) => {
 
     if (!word) {
       return res.status(404).json({message: 'Word not found'})
+    }
+
+    if (word.jlptLevel) {
+      const userId = req.user?.id
+      const placementTestService = new PlacementTestService(em)
+      const unlockedLevels = userId ? await placementTestService.getUnlockedLevels(userId) : []
+      const unlockedJlptNumbers = unlockedLevels
+        .map((level) => {
+          switch (level) {
+            case LevelEnum.N5:
+              return 5
+            case LevelEnum.N4:
+              return 4
+            case LevelEnum.N3:
+              return 3
+            case LevelEnum.N2:
+              return 2
+            case LevelEnum.N1:
+              return 1
+            default:
+              return null
+          }
+        })
+        .filter((jlpt): jlpt is 1 | 2 | 3 | 4 | 5 => jlpt !== null)
+
+      if (!unlockedJlptNumbers.includes(word.jlptLevel as 1 | 2 | 3 | 4 | 5)) {
+        return res.status(403).json({message: `Level N${word.jlptLevel} is not unlocked`})
+      }
     }
 
     // Defensive: ensure relationships are populated

@@ -2,16 +2,29 @@
 
 import {useRouter} from 'next/navigation'
 import {useAuth} from '../auth/hook/useAuth'
-import {useEffect} from 'react'
+import {useEffect, useState} from 'react'
+import {useQuery, useQueryClient} from '@tanstack/react-query'
 import {LearningSection} from './LearningSection'
 import {ActivityChart} from './ActivityChart'
 import {RecentBookmarks} from './RecentBookmarks'
 import {WeakAreas} from './WeakAreas'
 import {StatsCard} from './StatsCard'
+import {PlacementQuiz} from '../placement-quiz'
+import {LevelEnum} from '../onboarding/types'
+import {onboardingApi} from '../onboarding/services/api'
 
 const DashboardMain = () => {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const {alreadyOnboard} = useAuth()
+  const [isQuizDismissed, setIsQuizDismissed] = useState(false)
+
+  const onboardingQuery = useQuery({
+    queryKey: ['onboarding-me'],
+    queryFn: onboardingApi.getOnboardingData,
+    enabled: alreadyOnboard,
+    staleTime: 60 * 1000,
+  })
 
   useEffect(() => {
     if (!alreadyOnboard) {
@@ -21,6 +34,31 @@ const DashboardMain = () => {
 
   if (!alreadyOnboard) {
     return null
+  }
+
+  const onboarding = onboardingQuery.data?.onboarding
+  const quizLevel =
+    onboarding &&
+    onboarding.level !== LevelEnum.ZERO &&
+    !onboarding.hasTakenPlacementTest &&
+    !isQuizDismissed
+      ? onboarding.level
+      : null
+
+  if (quizLevel) {
+    return (
+      <div className="min-h-screen bg-slate-50 p-4 pt-10 dark:bg-slate-950">
+        <PlacementQuiz
+          level={quizLevel}
+          onComplete={() => {
+            setIsQuizDismissed(true)
+            queryClient.invalidateQueries({queryKey: ['onboarding-me']})
+            queryClient.invalidateQueries({queryKey: ['dashboard-stats']})
+            queryClient.invalidateQueries({queryKey: ['unlocked-levels']})
+          }}
+        />
+      </div>
+    )
   }
 
   return (

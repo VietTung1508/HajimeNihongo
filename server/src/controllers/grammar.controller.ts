@@ -2,6 +2,8 @@ import {Request, Response} from 'express'
 import {DI} from '../utils/di'
 import {Grammar} from '../entities/Grammar'
 import {GrammarExample} from '../entities/GrammarExample'
+import {PlacementTestService} from '../services/placement-test.service'
+import {LevelEnum} from '../enums/onboarding.enum'
 
 export const getGrammarList = async (req: Request, res: Response) => {
   try {
@@ -11,6 +13,18 @@ export const getGrammarList = async (req: Request, res: Response) => {
     const validLevels = ['N5', 'N4', 'N3', 'N2', 'N1']
     if (level && !validLevels.includes(level)) {
       return res.status(400).json({error: 'Invalid level'})
+    }
+
+    if (level) {
+      const placementTestService = new PlacementTestService(em)
+      const isUnlocked = await placementTestService.isLevelUnlocked(
+        req.user!.id,
+        level as LevelEnum,
+      )
+
+      if (!isUnlocked) {
+        return res.status(403).json({message: `${level} grammar is not unlocked`})
+      }
     }
 
     const where: Record<string, unknown> = {}
@@ -70,6 +84,16 @@ export const getGrammarDetail = async (req: Request, res: Response) => {
     )
     if (!grammar) {
       return res.status(404).json({message: 'Grammar point not found'})
+    }
+
+    const placementTestService = new PlacementTestService(em)
+    const isUnlocked = await placementTestService.isLevelUnlocked(
+      req.user!.id,
+      grammar.level as LevelEnum,
+    )
+
+    if (!isUnlocked) {
+      return res.status(403).json({message: `${grammar.level} grammar is not unlocked`})
     }
 
     res.json(grammar)
