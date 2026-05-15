@@ -2,7 +2,6 @@
 
 import {useRouter} from 'next/navigation'
 import {useQueryClient} from '@tanstack/react-query'
-import {Button} from '@/components/ui/button'
 import {Progress} from '@/components/ui/progress'
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from '@/components/ui/dropdown-menu'
 import {Card} from '@/components/ui/card'
@@ -50,7 +49,7 @@ export function LearningSection() {
               Today&apos;s Learning
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              {completedCount > 0 ? `✓ ${completedCount} mastered today` : 'Continue your progress'}
+              {completedCount > 0 ? `${completedCount} viewed today` : 'Continue your progress'}
             </p>
           </div>
         </div>

@@ -65,3 +65,6 @@ docs/
 # MikroORM snapshot files
 server/migrations/*.json
 server/migrations/.snapshot-*
+
+/plans
+.superpowers

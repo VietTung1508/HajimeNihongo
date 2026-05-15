@@ -8,14 +8,18 @@ interface LearnProgress {
   total: number
 }
 
+interface LearnProgressItem {
+  viewedAt: string | null
+}
+
 export function useLearningProgress() {
   return useQuery<LearnProgress>({
     queryKey: ['learn-progress'],
     queryFn: async () => {
       const response = await apiClient.get('/learn/today')
-      const items = response.data.items || []
+      const items: LearnProgressItem[] = response.data.items || []
       return {
-        completed: items.filter((i: any) => i.masteredAt).length,
+        completed: items.filter((item) => item.viewedAt).length,
         total: items.length
       }
     },

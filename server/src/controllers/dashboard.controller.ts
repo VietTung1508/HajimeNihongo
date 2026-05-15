@@ -9,6 +9,9 @@ import {Streak} from '../entities/Streak'
 import {DailyLearn} from '../entities/DailyLearn'
 import {DailyLearnStatus} from '../enums/learn.enum'
 import {User} from '../entities/User'
+import {UserLevelMastery} from '../entities/UserLevelMastery'
+import {MasteryTypeEnum} from '../enums/mastery.enum'
+import {StreakService} from '../services/streak.service'
 
 // Helper: Normalize JLPT level
 function normalizeJlptLevel(level: string | number | undefined | null): string {
@@ -21,6 +24,14 @@ function normalizeJlptLevel(level: string | number | undefined | null): string {
   if (/^N[1-5]$/.test(normalized)) return normalized
   if (['N1', 'N2', 'N3', 'N4', 'N5'].includes(normalized)) return normalized
   return 'N5'
+}
+
+function toStudyDateKey(value: string | Date): string {
+  if (value instanceof Date) {
+    return value.toISOString().slice(0, 10)
+  }
+
+  return new Date(value).toISOString().slice(0, 10)
 }
 
 // GET /dashboard/activity
@@ -177,6 +188,8 @@ export const getStats = async (req: Request, res: Response) => {
       })
       await em.persistAndFlush(streak)
     }
+    const streakService = new StreakService(em)
+    streak = await streakService.reconcileStreakFromCompletedLearns(streak, userId)
 
     // Get JLPT progress with proper eager loading
     const wordProgress = await em.find(UserWordProgress, {user: userId}, {
@@ -186,12 +199,12 @@ export const getStats = async (req: Request, res: Response) => {
       populate: ['grammar']
     })
 
-    const jlptProgress: Record<string, {mastered: number; total: number}> = {
-      N5: {mastered: 0, total: 0},
-      N4: {mastered: 0, total: 0},
-      N3: {mastered: 0, total: 0},
-      N2: {mastered: 0, total: 0},
-      N1: {mastered: 0, total: 0}
+    const jlptProgress: Record<string, {mastered: number; total: number; isMastered: boolean; isWaived: boolean}> = {
+      N5: {mastered: 0, total: 0, isMastered: false, isWaived: false},
+      N4: {mastered: 0, total: 0, isMastered: false, isWaived: false},
+      N3: {mastered: 0, total: 0, isMastered: false, isWaived: false},
+      N2: {mastered: 0, total: 0, isMastered: false, isWaived: false},
+      N1: {mastered: 0, total: 0, isMastered: false, isWaived: false}
     }
 
     // Count mastered words
@@ -236,6 +249,19 @@ export const getStats = async (req: Request, res: Response) => {
       jlptProgress[level].total += parseInt(row.total)
     }
 
+    // Check for waived/earned mastery levels
+    const levelMasteries = await em.find(UserLevelMastery, {user: userId})
+    for (const mastery of levelMasteries) {
+      const level = normalizeJlptLevel(mastery.level)
+      if (mastery.masteryType === MasteryTypeEnum.WAIVED) {
+        jlptProgress[level].isMastered = true
+        jlptProgress[level].isWaived = true
+      } else if (mastery.masteryType === MasteryTypeEnum.EARNED) {
+        jlptProgress[level].isMastered = true
+        jlptProgress[level].isWaived = false
+      }
+    }
+
     // Days studied
     const activityDates = new Set<string>()
 
@@ -245,7 +271,7 @@ export const getStats = async (req: Request, res: Response) => {
       .where('user_id', userId)
 
     for (const row of (reviewDates || [])) {
-      activityDates.add(String(row.date))
+      activityDates.add(toStudyDateKey(row.date))
     }
 
     const learnDates = await em.getKnex()
@@ -255,7 +281,7 @@ export const getStats = async (req: Request, res: Response) => {
       .where('status', DailyLearnStatus.COMPLETED)
 
     for (const row of (learnDates || [])) {
-      activityDates.add(row.generated_date)
+      activityDates.add(toStudyDateKey(row.generated_date))
     }
 
     // Last session accuracy

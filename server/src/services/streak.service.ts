@@ -6,6 +6,45 @@ import {DailyLearnStatus} from '../enums/learn.enum'
 export class StreakService {
   constructor(private em: EntityManager) {}
 
+  async reconcileStreakFromCompletedLearns(streak: Streak, userId: string): Promise<Streak> {
+    if (streak.currentStreak > 0 && streak.lastCompletedDate) {
+      return streak
+    }
+
+    const completedLearns = await this.em.find(DailyLearn, {
+      user: userId,
+      status: DailyLearnStatus.COMPLETED,
+    })
+
+    const completedDays = Array.from(new Set(
+      completedLearns
+        .map((dailyLearn: DailyLearn) => dailyLearn.completedAt || dailyLearn.generatedDate)
+        .filter((date: Date | undefined): date is Date => date !== undefined)
+        .map((date: Date) => this.getStartOfDay(date).getTime())
+    )).sort((a, b) => b - a)
+
+    if (completedDays.length === 0) {
+      return streak
+    }
+
+    let currentStreak = 1
+    for (let index = 1; index < completedDays.length; index++) {
+      const gapDays = Math.floor((completedDays[index - 1] - completedDays[index]) / (1000 * 60 * 60 * 24))
+      if (gapDays === 1) {
+        currentStreak++
+      } else if (gapDays > 1) {
+        break
+      }
+    }
+
+    streak.currentStreak = currentStreak
+    streak.longestStreak = Math.max(streak.longestStreak, currentStreak)
+    streak.lastCompletedDate = new Date(completedDays[0])
+    await this.em.flush()
+
+    return streak
+  }
+
   async updateStreakOnDailyLearnCompletion(dailyLearnId: number): Promise<Streak | null> {
     const dailyLearn = await this.em.findOne(DailyLearn, dailyLearnId, {
       populate: ['user'],
@@ -43,7 +82,9 @@ export class StreakService {
       ? Math.floor((today.getTime() - lastCompleted.getTime()) / (1000 * 60 * 60 * 24))
       : 0
 
-    if (gapDays === 0) {
+    if (!lastCompleted) {
+      streak.currentStreak = 1
+    } else if (gapDays === 0) {
       return streak
     } else if (gapDays === 1) {
       streak.currentStreak++

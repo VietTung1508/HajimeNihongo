@@ -20,11 +20,11 @@ export interface WeakAreasResponse {
 }
 
 export interface JLPTProgress {
-  N5: {mastered: number; total: number}
-  N4: {mastered: number; total: number}
-  N3: {mastered: number; total: number}
-  N2: {mastered: number; total: number}
-  N1: {mastered: number; total: number}
+  N5: {mastered: number; total: number; isMastered?: boolean; isWaived?: boolean}
+  N4: {mastered: number; total: number; isMastered?: boolean; isWaived?: boolean}
+  N3: {mastered: number; total: number; isMastered?: boolean; isWaived?: boolean}
+  N2: {mastered: number; total: number; isMastered?: boolean; isWaived?: boolean}
+  N1: {mastered: number; total: number; isMastered?: boolean; isWaived?: boolean}
 }
 
 export interface StatsResponse {

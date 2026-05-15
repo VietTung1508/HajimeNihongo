@@ -1,4 +1,4 @@
-import {Entity, PrimaryKey, Enum, OneToOne} from '@mikro-orm/core'
+import {Entity, PrimaryKey, Enum, OneToOne, Property} from '@mikro-orm/core'
 import {v4 as uuid} from 'uuid'
 import {
   LevelEnum,
@@ -20,6 +20,12 @@ export class UserOnboarding {
 
   @Enum(() => StudyPreferenceEnum)
   studyPreference!: StudyPreferenceEnum
+
+  @Property({nullable: true})
+  placementTestCompletedAt?: Date
+
+  @Property({default: false})
+  hasTakenPlacementTest: boolean = false
 
   @OneToOne(() => User)
   user!: User

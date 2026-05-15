@@ -5,13 +5,21 @@ export const wordsApi = {
   getWordList: async (params: {
     q?: string
     sort?: string
+    level?: string
     page?: number
     commonOnly?: boolean
     limit?: number
   }): Promise<WordListResponse> => {
-    const {q = '', sort = 'relevance', page = 1, commonOnly = false, limit = 12} = params
+    const {q = '', sort = 'relevance', level = 'all', page = 1, commonOnly = false, limit = 12} = params
     const response = await apiClient.get<WordListResponse>('/words', {
-      params: {q, sort, page, commonOnly, limit},
+      params: {
+        q,
+        sort,
+        page,
+        commonOnly,
+        limit,
+        ...(level !== 'all' ? {level} : {}),
+      },
     })
     return response.data
   },

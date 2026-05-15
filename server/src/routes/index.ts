@@ -8,5 +8,6 @@ import bookmarksRouter from './bookmarks.route'
 import reviewQueueRouter from './review-queue.route'
 import learnRoutes from './learn.route'
 import dashboardRoutes from './dashboard.route'
+import placementTestRoutes from './placement-test.route'
 
-export {authRoutes, onboardingRoutes, kanaRoutes, grammarRoutes, wordsRoutes, audioRoutes, bookmarksRouter, reviewQueueRouter, learnRoutes, dashboardRoutes}
+export {authRoutes, onboardingRoutes, kanaRoutes, grammarRoutes, wordsRoutes, audioRoutes, bookmarksRouter, reviewQueueRouter, learnRoutes, dashboardRoutes, placementTestRoutes}

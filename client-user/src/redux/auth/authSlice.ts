@@ -17,11 +17,16 @@ import {authApi} from '@/components/features/auth/services/api'
 import {CreateOnboardingRequest} from '@/components/features/onboarding/types'
 import {onboardingApi} from '@/components/features/onboarding/services/api'
 
+interface UserOnboardingState {
+  hasTakenPlacementTest: boolean
+  placementTestCompletedAt?: string
+}
+
 interface AuthState {
   isAuthenticated: boolean
   loading: boolean
   error: string | null
-  user: {email: string; username: string} | null
+  user: {email: string; username: string; onboarding?: UserOnboardingState} | null
   initialized: boolean
   alreadyOnboard: boolean
 }
@@ -35,6 +40,19 @@ const initialState: AuthState = {
   alreadyOnboard: false,
 }
 
+const getErrorMessage = (error: unknown, fallback: string) => {
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'response' in error &&
+    typeof (error as {response?: {data?: {message?: unknown}}}).response?.data?.message === 'string'
+  ) {
+    return (error as {response: {data: {message: string}}}).response.data.message
+  }
+
+  return fallback
+}
+
 export const registerThunk = createAsyncThunk(
   'auth/register',
   async (data: RegisterRequest, {rejectWithValue}) => {
@@ -45,8 +63,8 @@ export const registerThunk = createAsyncThunk(
       setUser(response.user)
 
       return response
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Register failed')
+    } catch (error: unknown) {
+      return rejectWithValue(getErrorMessage(error, 'Register failed'))
     }
   },
 )
@@ -63,8 +81,8 @@ export const loginThunk = createAsyncThunk(
       setUser(response.user)
 
       return response
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Login failed')
+    } catch (error: unknown) {
+      return rejectWithValue(getErrorMessage(error, 'Login failed'))
     }
   },
 )
@@ -78,10 +96,8 @@ export const onboardingThunk = createAsyncThunk(
       setAlreadyOnboarding(response.onboardingCompleted)
 
       return response
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || 'Onboarding failed',
-      )
+    } catch (error: unknown) {
+      return rejectWithValue(getErrorMessage(error, 'Onboarding failed'))
     }
   },
 )

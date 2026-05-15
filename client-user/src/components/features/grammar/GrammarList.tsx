@@ -1,6 +1,7 @@
 'use client'
 
 import {useState, useCallback} from 'react'
+import {useQuery} from '@tanstack/react-query'
 import {useSearchParams, useRouter} from 'next/navigation'
 import {toast} from 'sonner'
 import {useGrammarList} from './hook/useGrammarList'
@@ -14,6 +15,7 @@ import {GrammarItem} from './types'
 import Container from '@/components/layout/Container'
 import {useBookmark} from '@/features/bookmarks/hook/useBookmark'
 import {useMasteredIds} from '@/components/features/review/hook/useReviewQueue'
+import {placementTestApi} from '@/components/features/placement-quiz/services/api'
 
 export function GrammarList() {
   const router = useRouter()
@@ -31,6 +33,12 @@ export function GrammarList() {
   const {useGetBookmarkedIds, toggleBookmark} = useBookmark({type: 'grammar'})
   const {data: bookmarkedIds} = useGetBookmarkedIds()
   const {data: masteredIds} = useMasteredIds('grammar')
+  const {data: unlockedLevels} = useQuery({
+    queryKey: ['unlocked-levels'],
+    queryFn: placementTestApi.getUnlockedLevels,
+    staleTime: 0,
+    refetchOnMount: 'always',
+  })
 
   const updateUrl = useCallback(
     (level: string, lesson: string) => {
@@ -90,6 +98,7 @@ export function GrammarList() {
             selectedLesson={selectedLesson}
             onLevelChange={handleLevelChange}
             onLessonChange={handleLessonChange}
+            unlockedLevels={unlockedLevels?.levels}
           />
         )}
 

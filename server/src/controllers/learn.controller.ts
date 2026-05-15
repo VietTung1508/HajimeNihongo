@@ -219,15 +219,37 @@ export const pushToReview = async (req: Request, res: Response) => {
     const em = DI.em
     const userId = req.user!.id
 
-    const dailyLearn = await em.findOne(DailyLearn, {
-      user: userId,
+    const user = await em.findOne(User, userId)
+    if (!user) {
+      return res.status(404).json({error: 'User not found'})
+    }
+
+    let dailyLearn = await em.findOne(DailyLearn, {
+      user,
       status: 'PENDING',
     }, {
       populate: ['items', 'items.word', 'items.grammar'],
+      orderBy: {id: 'DESC'},
     })
 
     if (!dailyLearn) {
-      return res.status(404).json({error: 'No pending daily learn found'})
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+
+      const tomorrow = new Date(today)
+      tomorrow.setDate(tomorrow.getDate() + 1)
+
+      dailyLearn = await em.findOne(DailyLearn, {
+        user,
+        generatedDate: {$gte: today, $lt: tomorrow},
+      }, {
+        populate: ['items', 'items.word', 'items.grammar'],
+        orderBy: {id: 'DESC'},
+      })
+    }
+
+    if (!dailyLearn) {
+      return res.status(404).json({error: 'No daily learn found'})
     }
 
     const viewedItems = dailyLearn.items.getItems().filter(
@@ -238,11 +260,30 @@ export const pushToReview = async (req: Request, res: Response) => {
       return res.json({pushed: 0, message: 'No new viewed items to push'})
     }
 
+    const wordIds = viewedItems
+      .map((item: DailyLearnItem) => item.word?.id)
+      .filter((id: number | undefined): id is number => id !== undefined)
+    const grammarIds = viewedItems
+      .map((item: DailyLearnItem) => item.grammar?.id)
+      .filter((id: number | undefined): id is number => id !== undefined)
+
+    const existingWordQueue = wordIds.length > 0
+      ? await em.find(ReviewQueue, {user, word: {$in: wordIds}}, {populate: ['word']})
+      : []
+    const existingGrammarQueue = grammarIds.length > 0
+      ? await em.find(ReviewQueue, {user, grammar: {$in: grammarIds}}, {populate: ['grammar']})
+      : []
+    const queuedWordIds = new Set(existingWordQueue.map((item: ReviewQueue) => item.word?.id))
+    const queuedGrammarIds = new Set(existingGrammarQueue.map((item: ReviewQueue) => item.grammar?.id))
+
     const reviewItems = viewedItems
-      .filter((item: DailyLearnItem) => item.word || item.grammar)
+      .filter((item: DailyLearnItem) =>
+        (item.word && !queuedWordIds.has(item.word.id)) ||
+        (item.grammar && !queuedGrammarIds.has(item.grammar.id))
+      )
       .map((item: DailyLearnItem) =>
         em.create(ReviewQueue, {
-          user: userId,
+          user,
           word: item.word || undefined,
           grammar: item.grammar || undefined,
           createdAt: new Date(),
@@ -286,6 +327,9 @@ export const getStreak = async (req: Request, res: Response) => {
       await em.persistAndFlush(streak)
     }
 
+    const streakService = new StreakService(em)
+    streak = await streakService.reconcileStreakFromCompletedLearns(streak, userId)
+
     const response: StreakResponse = {
       currentStreak: streak.currentStreak,
       longestStreak: streak.longestStreak,
@@ -322,7 +366,7 @@ export const mirrorMasteredToDailyLearnItem = async (
   const dailyLearn = item.dailyLearn
   const allItems = await em.find(DailyLearnItem, {dailyLearn: dailyLearn.id})
 
-  const allMastered = allItems.every((i: DailyLearnItem) => i.masteredAt !== undefined)
+  const allMastered = allItems.every((i: DailyLearnItem) => i.masteredAt !== null && i.masteredAt !== undefined)
 
   if (allMastered && dailyLearn.status === 'PENDING') {
     dailyLearn.status = 'COMPLETED'
