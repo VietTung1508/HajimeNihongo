@@ -8,6 +8,16 @@ const DEFAULT_WIDTH = 260
 const MAX_WIDTH = 400
 const STORAGE_KEY = 'hajime-sidebar-w'
 
+const getValidWidth = (value: number) => {
+  if (!Number.isFinite(value) || value < SNAP_MIN) return DEFAULT_WIDTH
+  return Math.min(value, MAX_WIDTH)
+}
+
+const getStoredWidth = () => {
+  const saved = localStorage.getItem(STORAGE_KEY)
+  return saved ? getValidWidth(parseInt(saved, 10)) : DEFAULT_WIDTH
+}
+
 export const useSidebarResize = () => {
   const [width, setWidth] = useState(DEFAULT_WIDTH)
   const [isCollapsed, setIsCollapsed] = useState(false)
@@ -17,8 +27,11 @@ export const useSidebarResize = () => {
 
   // Load persisted width after mount to avoid SSR hydration mismatch
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved) setWidth(parseInt(saved, 10))
+    const frame = requestAnimationFrame(() => {
+      setWidth(getStoredWidth())
+    })
+
+    return () => cancelAnimationFrame(frame)
   }, [])
 
   const onDragStart = useCallback(
@@ -65,7 +78,27 @@ export const useSidebarResize = () => {
     }
   }, [])
 
-  const toggleCollapse = useCallback(() => setIsCollapsed((p) => !p), [])
+  const expandSidebar = useCallback(() => {
+    setWidth((prev) => {
+      const next = prev >= SNAP_MIN ? getValidWidth(prev) : getStoredWidth()
+      localStorage.setItem(STORAGE_KEY, String(next))
+      return next
+    })
+    setIsCollapsed(false)
+  }, [])
+
+  const collapseSidebar = useCallback(() => {
+    setIsCollapsed(true)
+  }, [])
+
+  const toggleCollapse = useCallback(() => {
+    if (isCollapsed) {
+      expandSidebar()
+      return
+    }
+
+    collapseSidebar()
+  }, [collapseSidebar, expandSidebar, isCollapsed])
 
   return {width, isCollapsed, onDragStart, toggleCollapse}
 }

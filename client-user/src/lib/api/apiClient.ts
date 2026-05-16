@@ -8,6 +8,16 @@ const REFRESH_TOKEN_KEY = 'refresh_token'
 const USER_KEY = 'user'
 const ONBOARDING_KEY = 'already_onboarding'
 
+export interface UserProfile {
+  email: string
+  username: string
+  avatarUrl?: string
+  onboarding?: {
+    hasTakenPlacementTest: boolean
+    placementTestCompletedAt?: string
+  }
+}
+
 // Axios instance
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -123,9 +133,8 @@ export const refreshAccessToken = async (
   return await apiClient.post('auth/refresh', {refreshToken})
 }
 
-export const setUser = (user: {email: string; username: string}) => {
+export const setUser = (user: UserProfile): void => {
   if (typeof window === 'undefined') return
-
   try {
     Cookies.set(USER_KEY, JSON.stringify(user), {
       expires: 7,
@@ -136,12 +145,11 @@ export const setUser = (user: {email: string; username: string}) => {
   }
 }
 
-export const getUser = (): {email: string; username: string} | null => {
+export const getUser = (): UserProfile | null => {
   if (typeof window === 'undefined') return null
-
   try {
     const user = Cookies.get(USER_KEY)
-    return user ? JSON.parse(user) : null
+    return user ? (JSON.parse(user) as UserProfile) : null
   } catch (error) {
     console.error('Error getting user:', error)
     return null

@@ -1,4 +1,4 @@
-import {createSlice, createAsyncThunk} from '@reduxjs/toolkit'
+import {createSlice, createAsyncThunk, PayloadAction} from '@reduxjs/toolkit'
 import {
   setAccessToken,
   setRefreshToken,
@@ -8,6 +8,7 @@ import {
   getUser,
   setAlreadyOnboarding,
   getAlreadyOnboarding,
+  UserProfile,
 } from '@/lib/api/apiClient'
 import {
   LoginRequest,
@@ -17,16 +18,11 @@ import {authApi} from '@/components/features/auth/services/api'
 import {CreateOnboardingRequest} from '@/components/features/onboarding/types'
 import {onboardingApi} from '@/components/features/onboarding/services/api'
 
-interface UserOnboardingState {
-  hasTakenPlacementTest: boolean
-  placementTestCompletedAt?: string
-}
-
 interface AuthState {
   isAuthenticated: boolean
   loading: boolean
   error: string | null
-  user: {email: string; username: string; onboarding?: UserOnboardingState} | null
+  user: UserProfile | null
   initialized: boolean
   alreadyOnboard: boolean
 }
@@ -130,6 +126,11 @@ const authSlice = createSlice({
 
       state.initialized = true
     },
+    updateUserProfile: (state, action: PayloadAction<Partial<UserProfile>>) => {
+      if (state.user) {
+        state.user = {...state.user, ...action.payload}
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -167,5 +168,5 @@ const authSlice = createSlice({
   },
 })
 
-export const {logout, setAuthenticated, hydrateAuth} = authSlice.actions
+export const {logout, setAuthenticated, hydrateAuth, updateUserProfile} = authSlice.actions
 export default authSlice.reducer

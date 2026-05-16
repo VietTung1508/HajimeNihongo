@@ -135,7 +135,7 @@ export const sendMessage = async (req: Request, res: Response) => {
 
     // Build system prompt with JLPT level
     const level = await DI.chatService!.getUserLevel(userId)
-    const systemPrompt = `${MODE_SYSTEM_PROMPTS[mode]} Adjust complexity for JLPT ${level}. IMPORTANT: Always use real Japanese characters (kanji, hiragana, katakana). Never write Japanese words in romaji.`
+    const systemPrompt = `${MODE_SYSTEM_PROMPTS[mode]} Adjust complexity for JLPT ${level}. IMPORTANT: Always use real Japanese characters (kanji, hiragana, katakana). Never write Japanese words in romaji. EXCEPTION: When rejecting an off-topic question per scope rules, respond ONLY in plain English with no Japanese characters: "Sorry, I can only support you with questions related to Japanese language learning."`
 
     // Call Mistral streaming API (OpenAI-compatible endpoint)
     const mistralRes = await fetch('https://api.mistral.ai/v1/chat/completions', {

@@ -1,8 +1,8 @@
+import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import {authRoutes, onboardingRoutes, kanaRoutes, grammarRoutes, wordsRoutes, audioRoutes, bookmarksRouter, reviewQueueRouter, learnRoutes, dashboardRoutes, placementTestRoutes, chatRoutes} from './routes'
 import {setupSwagger} from './config/swagger'
-import 'dotenv/config'
 
 export const app = express()
 
