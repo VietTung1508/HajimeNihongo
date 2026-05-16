@@ -61,7 +61,7 @@ const ChatPage = () => {
           <button
             onClick={toggleCollapse}
             title="Open sidebar"
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-[#082630] hover:bg-[#0d3547] text-slate-400 hover:text-slate-200 p-1.5 rounded-r-md border-r border-y border-slate-700/40 transition-colors"
+            className="fixed left-0 top-1/2 -translate-y-1/2 z-50 bg-[#082630] hover:bg-[#0d3547] text-slate-400 hover:text-slate-200 p-1.5 rounded-r-md border-r border-y border-slate-700/40 transition-colors"
           >
             <PanelLeftOpen className="w-3.5 h-3.5" />
           </button>

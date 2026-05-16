@@ -1,5 +1,20 @@
 import {Router} from 'express'
 import {login, register} from '../controllers/auth.controller'
+import multer from 'multer'
+import {auth} from '../middleware/auth.middleware'
+import {updateUsername, updatePassword, uploadAvatar} from '../controllers/user.controller'
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {fileSize: 5 * 1024 * 1024},
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true)
+    } else {
+      cb(new Error('Invalid file type') as any, false)
+    }
+  },
+})
 
 const router = Router()
 
@@ -88,5 +103,9 @@ router.post('/register', register)
  *         description: Invalid credentials
  */
 router.post('/login', login)
+
+router.patch('/me', auth, updateUsername)
+router.patch('/me/password', auth, updatePassword)
+router.post('/me/avatar', auth, upload.single('avatar'), uploadAvatar)
 
 export default router

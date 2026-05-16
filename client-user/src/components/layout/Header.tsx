@@ -16,10 +16,23 @@ import {
 import {ChevronDown} from 'lucide-react'
 import {useReviewItems} from '@/components/features/review/hook/useReviewQueue'
 import {useTodayLearn} from '@/components/features/learn/hooks/useLearn'
+import {useRouter} from 'next/navigation'
+import {useAppDispatch} from '@/redux/hooks'
+import {logout} from '@/redux/auth/authSlice'
+import {AvatarCircle} from '@/components/ui/avatar-circle'
+import {LogOut} from 'lucide-react'
 
 const Header = () => {
   const [isSticky, setIsSticky] = useState(false)
   const {user, isAuthenticated} = useAppSelector((state) => state.auth)
+  const dispatch = useAppDispatch()
+  const router = useRouter()
+
+  const handleLogout = () => {
+    dispatch(logout())
+    router.push('/signin')
+  }
+
   const {data: reviewData} = useReviewItems()
   const reviewCount = reviewData?.total ?? 0
   const {data: todayLearn} = useTodayLearn()
@@ -139,12 +152,31 @@ const Header = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
 
-                <div className='flex items-center gap-2 cursor-pointer'>
-                  <div className='flex items-center justify-center w-6 h-6 bg-gray-200 rounded-full'>
-                    <User className='text-black w-4 h-4' />
-                  </div>
-                  <p>{user?.username}</p>
-                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className='focus:outline-none cursor-pointer'>
+                      <AvatarCircle
+                        username={user?.username ?? ''}
+                        avatarUrl={user?.avatarUrl}
+                        size={32}
+                      />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align='end'>
+                    <DropdownMenuItem asChild>
+                      <Link href='/profile' className='flex items-center gap-2'>
+                        <User className='w-4 h-4' /> Profile
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={handleLogout}
+                      className='flex items-center gap-2 cursor-pointer text-red-500 focus:text-red-500'
+                    >
+                      <LogOut className='w-4 h-4' /> Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             )}
           </div>

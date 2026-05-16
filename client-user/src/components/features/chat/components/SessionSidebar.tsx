@@ -85,8 +85,13 @@ export const SessionSidebar = ({
   return (
     <>
       <div
-        className="flex-shrink-0 flex flex-col bg-[#082630] border-r border-slate-700/40 relative overflow-hidden"
+        className={`flex-shrink-0 min-w-0 flex flex-col bg-[#082630] relative overflow-hidden ${
+          isCollapsed
+            ? 'pointer-events-none border-r-0'
+            : 'border-r border-slate-700/40'
+        }`}
         style={{width: isCollapsed ? 0 : width}}
+        aria-hidden={isCollapsed}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-3 py-2.5 border-b border-slate-700/40 flex-shrink-0">

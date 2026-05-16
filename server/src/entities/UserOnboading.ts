@@ -22,7 +22,7 @@ export class UserOnboarding {
   studyPreference!: StudyPreferenceEnum
 
   @Property({nullable: true})
-  placementTestCompletedAt?: Date
+  placementTestCompletedAt?: Date | null
 
   @Property({default: false})
   hasTakenPlacementTest: boolean = false

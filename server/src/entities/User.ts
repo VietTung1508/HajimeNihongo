@@ -23,6 +23,9 @@ export class User {
   @Enum(() => UserRole)
   role: UserRole = UserRole.USER
 
+  @Property({nullable: true})
+  avatarUrl?: string
+
   @Property({onCreate: () => new Date()})
   createdAt!: Date
 

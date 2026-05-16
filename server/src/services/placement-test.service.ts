@@ -50,36 +50,36 @@ export class PlacementTestService {
 
     const jlptNum = this.getJlptLevelNumber(level)
 
-    const words = await this.em.find(
+    let words = await this.em.find(
       Word,
       masteredWordIds.length > 0
-        ? {
-            id: {$nin: masteredWordIds},
-            jlptLevel: jlptNum,
-          }
-        : {
-            jlptLevel: jlptNum,
-          },
+        ? {id: {$nin: masteredWordIds}, jlptLevel: jlptNum}
+        : {jlptLevel: jlptNum},
       {orderBy: {id: 'ASC'}, limit: 10},
     )
+    // Fallback: user has mastered all words at this level — use the full pool
+    if (words.length === 0 && masteredWordIds.length > 0) {
+      words = await this.em.find(Word, {jlptLevel: jlptNum}, {orderBy: {id: 'ASC'}, limit: 10})
+    }
+
     const wordDistractors = await this.em.find(
       Word,
       {jlptLevel: jlptNum},
       {orderBy: {id: 'ASC'}, limit: 40},
     )
 
-    const grammars = await this.em.find(
+    let grammars = await this.em.find(
       Grammar,
       masteredGrammarIds.length > 0
-        ? {
-            id: {$nin: masteredGrammarIds},
-            level: level,
-          }
-        : {
-            level: level,
-          },
+        ? {id: {$nin: masteredGrammarIds}, level: level}
+        : {level: level},
       {orderBy: {id: 'ASC'}, limit: 10},
     )
+    // Fallback: user has mastered all grammar at this level — use the full pool
+    if (grammars.length === 0 && masteredGrammarIds.length > 0) {
+      grammars = await this.em.find(Grammar, {level: level}, {orderBy: {id: 'ASC'}, limit: 10})
+    }
+
     const grammarDistractors = await this.em.find(
       Grammar,
       {level: level},

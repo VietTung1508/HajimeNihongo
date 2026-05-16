@@ -1,4 +1,5 @@
 import 'reflect-metadata'
+import 'dotenv/config'
 import {app} from './app'
 import {initDI} from './utils/di'
 import {startDailyLearnCron} from './jobs/daily-learn-cron.job'
