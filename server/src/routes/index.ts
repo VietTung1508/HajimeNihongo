@@ -1,3 +1,4 @@
+import adminAuthRoutes from './admin-auth.route'
 import authRoutes from './auth.route'
 import onboardingRoutes from './onboarding.route'
 import kanaRoutes from './kana.route'
@@ -11,4 +12,4 @@ import dashboardRoutes from './dashboard.route'
 import placementTestRoutes from './placement-test.route'
 import chatRoutes from './chat.route'
 
-export {authRoutes, onboardingRoutes, kanaRoutes, grammarRoutes, wordsRoutes, audioRoutes, bookmarksRouter, reviewQueueRouter, learnRoutes, dashboardRoutes, placementTestRoutes, chatRoutes}
+export {adminAuthRoutes, authRoutes, onboardingRoutes, kanaRoutes, grammarRoutes, wordsRoutes, audioRoutes, bookmarksRouter, reviewQueueRouter, learnRoutes, dashboardRoutes, placementTestRoutes, chatRoutes}

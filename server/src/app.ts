@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
-import {authRoutes, onboardingRoutes, kanaRoutes, grammarRoutes, wordsRoutes, audioRoutes, bookmarksRouter, reviewQueueRouter, learnRoutes, dashboardRoutes, placementTestRoutes, chatRoutes} from './routes'
+import {adminAuthRoutes, authRoutes, onboardingRoutes, kanaRoutes, grammarRoutes, wordsRoutes, audioRoutes, bookmarksRouter, reviewQueueRouter, learnRoutes, dashboardRoutes, placementTestRoutes, chatRoutes} from './routes'
 import {setupSwagger} from './config/swagger'
 
 export const app = express()
@@ -10,7 +10,7 @@ app.use(express.json())
 
 app.use(
   cors({
-    origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173'],
+    origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173', 'http://localhost:4001'],
     credentials: true,
   }),
 )
@@ -27,5 +27,6 @@ app.use('/learn', learnRoutes)
 app.use('/dashboard', dashboardRoutes)
 app.use('/placement-test', placementTestRoutes)
 app.use('/chat', chatRoutes)
+app.use('/admin/auth', adminAuthRoutes)
 
 setupSwagger(app)
