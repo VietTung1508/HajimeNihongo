@@ -14,10 +14,11 @@ import learnRoutes from './learn.route'
 import dashboardRoutes from './dashboard.route'
 import placementTestRoutes from './placement-test.route'
 import chatRoutes from './chat.route'
+import landingRoutes from './landing.route'
 
 export {
   adminAuthRoutes, adminPermissionsRoutes, adminRolesRoutes, adminUsersRoutes,
   authRoutes, onboardingRoutes, kanaRoutes, grammarRoutes, wordsRoutes,
   audioRoutes, bookmarksRouter, reviewQueueRouter, learnRoutes,
-  dashboardRoutes, placementTestRoutes, chatRoutes,
+  dashboardRoutes, placementTestRoutes, chatRoutes, landingRoutes,
 }

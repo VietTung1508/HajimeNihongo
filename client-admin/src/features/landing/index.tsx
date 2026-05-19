@@ -1,68 +1,88 @@
-import { ExternalLink } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
+import {useEffect, useState} from 'react'
+import {closestCenter, DndContext} from '@dnd-kit/core'
+import type {DragEndEvent} from '@dnd-kit/core'
+import {arrayMove, SortableContext, verticalListSortingStrategy} from '@dnd-kit/sortable'
+import {useLandingData, useUpdateSectionPositions} from './hooks/use-landing-api'
+import {DraggableSectionCard} from './components/draggable-section-card'
+import {HeroSectionForm} from './components/hero-section-form'
+import {TestimonialsSection} from './components/testimonials-section'
+import {ChatbotSectionForm} from './components/chatbot-section-form'
+import {CtaSectionForm} from './components/cta-section-form'
+import type {LandingSection} from './types'
 
-const Landing = () => (
-  <div className="space-y-6">
-    <div className="flex items-center justify-between">
+const SECTION_LABELS: Record<string, string> = {
+  hero: 'Hero Section',
+  testimonials: 'Testimonials',
+  chatbot: 'AI Chatbot',
+  cta: 'CTA Section',
+}
+
+const Landing = () => {
+  const {data, isLoading} = useLandingData()
+  const updatePositions = useUpdateSectionPositions()
+  const [sections, setSections] = useState<LandingSection[]>([])
+  const [openSection, setOpenSection] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (data?.sections) setSections(data.sections)
+  }, [data])
+
+  const toggleSection = (key: string) => setOpenSection(prev => (prev === key ? null : key))
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const {active, over} = event
+    if (!over || active.id === over.id) return
+    const oldIdx = sections.findIndex(s => s.sectionKey === active.id)
+    const newIdx = sections.findIndex(s => s.sectionKey === over.id)
+    const reordered = arrayMove(sections, oldIdx, newIdx).map((s, i) => ({...s, position: i}))
+    setSections(reordered)
+    updatePositions.mutate(reordered.map(s => ({sectionKey: s.sectionKey, position: s.position})))
+  }
+
+  if (isLoading) return <div className='p-6 text-muted-foreground'>Loading...</div>
+
+  return (
+    <div className='space-y-6 p-6'>
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Landing Page</h1>
-        <p className="text-sm text-muted-foreground">Manage the public-facing landing page content</p>
+        <h1 className='text-2xl font-bold tracking-tight'>Landing Page</h1>
+        <p className='text-sm text-muted-foreground'>
+          Drag sections to reorder. Expand a section to edit. Changes save immediately.
+        </p>
       </div>
-      <Button size="sm" variant="outline">
-        <ExternalLink /> Preview
-      </Button>
-    </div>
 
-    <div className="grid gap-4 lg:grid-cols-2">
-      <Card>
-        <CardHeader>
-          <CardTitle>Hero Section</CardTitle>
-          <CardDescription>Main headline and call-to-action content</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex h-24 items-center justify-center rounded-md border border-dashed border-border text-sm text-muted-foreground">
-            Content editor coming soon
+      <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext
+          items={sections.map(s => s.sectionKey)}
+          strategy={verticalListSortingStrategy}
+        >
+          <div className='flex flex-col gap-4'>
+            {sections.map(section => (
+              <DraggableSectionCard
+                key={section.sectionKey}
+                id={section.sectionKey}
+                title={SECTION_LABELS[section.sectionKey]}
+                open={openSection === section.sectionKey}
+                onToggle={() => toggleSection(section.sectionKey)}
+              >
+                {section.sectionKey === 'hero' && (
+                  <HeroSectionForm section={section} onClose={() => setOpenSection(null)} />
+                )}
+                {section.sectionKey === 'testimonials' && (
+                  <TestimonialsSection section={section} />
+                )}
+                {section.sectionKey === 'chatbot' && (
+                  <ChatbotSectionForm section={section} onClose={() => setOpenSection(null)} />
+                )}
+                {section.sectionKey === 'cta' && (
+                  <CtaSectionForm section={section} onClose={() => setOpenSection(null)} />
+                )}
+              </DraggableSectionCard>
+            ))}
           </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Pricing Section</CardTitle>
-          <CardDescription>Subscription plans and pricing tiers</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex h-24 items-center justify-center rounded-md border border-dashed border-border text-sm text-muted-foreground">
-            Content editor coming soon
-          </div>
-        </CardContent>
-      </Card>
+        </SortableContext>
+      </DndContext>
     </div>
-
-    <Card>
-      <CardHeader>
-        <CardTitle>Page Sections</CardTitle>
-        <CardDescription>All configurable sections of the landing page</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {['Hero', 'Features', 'Why It Works', 'Testimonials', 'Pricing', 'CTA'].map(
-          (section, i, arr) => (
-            <div key={section}>
-              <div className="flex items-center justify-between py-1">
-                <span className="text-sm font-medium">{section}</span>
-                <Button size="sm" variant="ghost" className="h-7 text-xs">
-                  Edit
-                </Button>
-              </div>
-              {i < arr.length - 1 && <Separator />}
-            </div>
-          ),
-        )}
-      </CardContent>
-    </Card>
-  </div>
-)
+  )
+}
 
 export default Landing
