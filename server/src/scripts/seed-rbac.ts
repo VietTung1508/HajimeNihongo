@@ -29,6 +29,17 @@ async function seedRbac() {
     await em.flush()
     console.log(`Seeded ${permissionEntities.length} permissions`)
 
+    // 1b. Upsert account:view permission (account module is read-only)
+    const accountViewKey = 'account:view'
+    let accountViewPerm = await em.findOne(Permission, { key: accountViewKey })
+    if (!accountViewPerm) {
+      accountViewPerm = em.create(Permission, { key: accountViewKey })
+      em.persist(accountViewPerm)
+    }
+    permissionEntities.push(accountViewPerm)
+    await em.flush()
+    console.log(`Seeded account:view permission`)
+
     // 2. Upsert Super Admin role — ensure it exists first, then fetch populated
     const existing = await em.findOne(Role, { name: 'Super Admin' })
     if (!existing) {

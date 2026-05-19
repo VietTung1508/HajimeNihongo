@@ -36,6 +36,9 @@ export class User {
   @Property({ onCreate: () => new Date() })
   createdAt!: Date
 
+  @Property({ nullable: true, type: 'datetime' })
+  lastLoginAt?: Date
+
   @ManyToMany(() => Role)
   roles = new Collection<Role>(this)
 

@@ -3,24 +3,34 @@ import argon2 from 'argon2'
 import {User} from '../entities/User'
 import {DI} from '../utils/di'
 import {uploadToCloudinary} from '../utils/uploadToCloudinary'
+import {GenderEnum} from '../enums/auth.enum'
 
 function sanitizeProfileUser(user: User) {
   return {
     email: user.email,
     username: user.username,
     avatarUrl: user.avatarUrl,
+    phoneNumber: user.phone_number ?? null,
+    gender: user.gender ?? null,
+    dateOfBirth: user.dateOfBirth ? user.dateOfBirth.toISOString().split('T')[0] : null,
   }
 }
 
 export async function updateUsername(req: Request, res: Response) {
   try {
-    const {username} = req.body
+    const {username, phoneNumber, gender, dateOfBirth} = req.body
     if (!username || typeof username !== 'string' || username.trim() === '') {
       return res.status(400).json({message: 'Username is required'})
+    }
+    if (gender !== undefined && gender !== null && !Object.values(GenderEnum).includes(gender)) {
+      return res.status(400).json({message: 'Invalid gender value'})
     }
     const user = await DI.em.findOne(User, {id: req.user!.id})
     if (!user) return res.status(404).json({message: 'User not found'})
     user.username = username.trim()
+    if (phoneNumber !== undefined) user.phone_number = phoneNumber || null
+    if (gender !== undefined) user.gender = gender || undefined
+    if (dateOfBirth !== undefined) user.dateOfBirth = dateOfBirth ? new Date(dateOfBirth) : undefined
     await DI.em.flush()
     return res.json(sanitizeProfileUser(user))
   } catch {

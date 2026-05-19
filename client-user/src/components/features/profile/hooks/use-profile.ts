@@ -1,9 +1,14 @@
 import {useMutation} from '@tanstack/react-query'
 import {profileApi} from '../services/api'
 
-export function useUpdateUsername() {
+export function useUpdateProfile() {
   return useMutation({
-    mutationFn: (username: string) => profileApi.updateUsername(username),
+    mutationFn: (data: {
+      username: string
+      phoneNumber?: string | null
+      gender?: string | null
+      dateOfBirth?: string | null
+    }) => profileApi.updateProfile(data),
   })
 }
 

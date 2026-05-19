@@ -1,8 +1,13 @@
 import {apiClient} from '@/lib/api/apiClient'
 
 export const profileApi = {
-  updateUsername: async (username: string) => {
-    const response = await apiClient.patch('/auth/me', {username})
+  updateProfile: async (data: {
+    username: string
+    phoneNumber?: string | null
+    gender?: string | null
+    dateOfBirth?: string | null
+  }) => {
+    const response = await apiClient.patch('/auth/me', data)
     return response.data
   },
 

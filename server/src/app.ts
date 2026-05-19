@@ -2,7 +2,7 @@ import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import {
-  adminAuthRoutes, adminPermissionsRoutes, adminRolesRoutes, adminUsersRoutes,
+  adminAuthRoutes, adminPermissionsRoutes, adminRolesRoutes, adminUsersRoutes, adminAccountsRoutes,
   authRoutes, onboardingRoutes, kanaRoutes, grammarRoutes, wordsRoutes,
   audioRoutes, bookmarksRouter, reviewQueueRouter, learnRoutes,
   dashboardRoutes, placementTestRoutes, chatRoutes, landingRoutes,
@@ -37,5 +37,6 @@ app.use('/admin/auth', adminAuthRoutes)
 app.use('/admin/permissions', adminPermissionsRoutes)
 app.use('/admin/roles', adminRolesRoutes)
 app.use('/admin/users', adminUsersRoutes)
+app.use('/admin/accounts', adminAccountsRoutes)
 
 setupSwagger(app)

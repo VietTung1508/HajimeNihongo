@@ -12,6 +12,9 @@ export interface UserProfile {
   email: string
   username: string
   avatarUrl?: string
+  phoneNumber?: string | null
+  gender?: 'MALE' | 'FEMALE' | 'OTHER' | null
+  dateOfBirth?: string | null
   onboarding?: {
     hasTakenPlacementTest: boolean
     placementTestCompletedAt?: string
