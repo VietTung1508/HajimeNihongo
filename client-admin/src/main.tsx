@@ -5,6 +5,7 @@ import './index.css'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { Provider } from 'react-redux'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { Toaster } from 'sonner'
 import { store } from './store'
 import { routeTree } from './routeTree.gen'
 
@@ -22,6 +23,7 @@ createRoot(document.getElementById('root')!).render(
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
+        <Toaster richColors position='top-right' />
       </QueryClientProvider>
     </Provider>
   </StrictMode>,

@@ -5,7 +5,7 @@ import {
   adminAuthRoutes, adminPermissionsRoutes, adminRolesRoutes, adminUsersRoutes,
   authRoutes, onboardingRoutes, kanaRoutes, grammarRoutes, wordsRoutes,
   audioRoutes, bookmarksRouter, reviewQueueRouter, learnRoutes,
-  dashboardRoutes, placementTestRoutes, chatRoutes,
+  dashboardRoutes, placementTestRoutes, chatRoutes, landingRoutes,
 } from './routes'
 import {setupSwagger} from './config/swagger'
 
@@ -32,6 +32,7 @@ app.use('/learn', learnRoutes)
 app.use('/dashboard', dashboardRoutes)
 app.use('/placement-test', placementTestRoutes)
 app.use('/chat', chatRoutes)
+app.use('/landing', landingRoutes)
 app.use('/admin/auth', adminAuthRoutes)
 app.use('/admin/permissions', adminPermissionsRoutes)
 app.use('/admin/roles', adminRolesRoutes)

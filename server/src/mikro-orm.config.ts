@@ -7,9 +7,11 @@ import {DailyLearnItem} from './entities/DailyLearnItem'
 import {Streak} from './entities/Streak'
 import {ChatSession} from './entities/ChatSession'
 import {ChatMessage} from './entities/ChatMessage'
+import {LandingConfig} from './entities/LandingConfig'
+import {LandingTestimonial} from './entities/LandingTestimonial'
 
 export default defineConfig({
-  entities: ['dist/entities', Grammar, GrammarExample, DailyLearn, DailyLearnItem, Streak, ChatSession, ChatMessage],
+  entities: ['dist/entities', Grammar, GrammarExample, DailyLearn, DailyLearnItem, Streak, ChatSession, ChatMessage, LandingConfig, LandingTestimonial],
   entitiesTs: ['src/entities'],
   dbName: 'hajimenihongo',
   user: 'admin',

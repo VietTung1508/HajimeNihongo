@@ -82,7 +82,7 @@ export function UserFormModal({ mode, open, onClose, onSave, user, isSaving }: P
     formState: { errors },
   } = useForm<FormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolver: yupResolver(schema) as any,
+    resolver: yupResolver(schema as any),
     defaultValues: DEFAULT_VALUES,
   })
 

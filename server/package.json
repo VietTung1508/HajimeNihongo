@@ -24,7 +24,8 @@
     "diagnose:examples": "ts-node src/scripts/diagnose-examples.ts",
     "examples:fix": "ts-node src/scripts/reimport-examples-optimized.ts",
     "seed:admin": "ts-node -r tsconfig-paths/register src/scripts/seed-admin.ts",
-    "seed:rbac": "ts-node -r tsconfig-paths/register src/scripts/seed-rbac.ts"
+    "seed:rbac": "ts-node -r tsconfig-paths/register src/scripts/seed-rbac.ts",
+    "seed:landing": "ts-node -r tsconfig-paths/register src/scripts/seed-landing.ts"
   },
   "keywords": [],
   "author": "",
