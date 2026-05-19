@@ -2,6 +2,7 @@ import { useSelector } from 'react-redux'
 import {
   LayoutDashboard,
   Users,
+  UsersRound,
   Shield,
   UserCog,
   BookOpen,
@@ -44,6 +45,15 @@ const Sidebar = () => {
           to="/"
           isCollapsed={isCollapsed}
         />
+
+        {can('account:view') && (
+          <NavItem
+            icon={<UsersRound size={16} />}
+            label="Accounts"
+            to="/accounts"
+            isCollapsed={isCollapsed}
+          />
+        )}
 
         {(can('user:view') || can('role:view')) && (
           <NavGroup icon={<UserCog size={16} />} label="User Settings" isCollapsed={isCollapsed}>

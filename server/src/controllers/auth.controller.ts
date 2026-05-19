@@ -15,6 +15,10 @@ function sanitizeUser(user: User) {
   return {
     email: user.email,
     username: user.username,
+    avatarUrl: user.avatarUrl,
+    phoneNumber: user.phone_number ?? null,
+    gender: user.gender ?? null,
+    dateOfBirth: user.dateOfBirth ? user.dateOfBirth.toISOString().split('T')[0] : null,
   }
 }
 
@@ -59,6 +63,9 @@ export async function login(req: Request, res: Response) {
     if (!user || !(await argon2.verify(user.password, password))) {
       return res.status(401).json({message: 'Invalid credentials'})
     }
+
+    user.lastLoginAt = new Date()
+    await DI.em.flush()
 
     const token = generateToken(user)
 

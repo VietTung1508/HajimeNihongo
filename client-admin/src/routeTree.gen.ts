@@ -19,6 +19,9 @@ import { Route as AuthenticatedLandingRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedKanaRouteImport } from './routes/_authenticated/kana'
 import { Route as AuthenticatedGrammarRouteImport } from './routes/_authenticated/grammar'
 import { Route as AuthenticatedChangePasswordRouteImport } from './routes/_authenticated/change-password'
+import { Route as AuthenticatedAccountsRouteImport } from './routes/_authenticated/accounts'
+import { Route as AuthenticatedAccountsIndexRouteImport } from './routes/_authenticated/accounts.index'
+import { Route as AuthenticatedAccountsIdRouteImport } from './routes/_authenticated/accounts.$id'
 
 const SignInRoute = SignInRouteImport.update({
   id: '/sign-in',
@@ -70,10 +73,27 @@ const AuthenticatedChangePasswordRoute =
     path: '/change-password',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedAccountsRoute = AuthenticatedAccountsRouteImport.update({
+  id: '/accounts',
+  path: '/accounts',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedAccountsIndexRoute =
+  AuthenticatedAccountsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAccountsRoute,
+  } as any)
+const AuthenticatedAccountsIdRoute = AuthenticatedAccountsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedAccountsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/sign-in': typeof SignInRoute
+  '/accounts': typeof AuthenticatedAccountsRouteWithChildren
   '/change-password': typeof AuthenticatedChangePasswordRoute
   '/grammar': typeof AuthenticatedGrammarRoute
   '/kana': typeof AuthenticatedKanaRoute
@@ -81,6 +101,8 @@ export interface FileRoutesByFullPath {
   '/roles': typeof AuthenticatedRolesRoute
   '/users': typeof AuthenticatedUsersRoute
   '/vocabulary': typeof AuthenticatedVocabularyRoute
+  '/accounts/$id': typeof AuthenticatedAccountsIdRoute
+  '/accounts/': typeof AuthenticatedAccountsIndexRoute
 }
 export interface FileRoutesByTo {
   '/sign-in': typeof SignInRoute
@@ -92,11 +114,14 @@ export interface FileRoutesByTo {
   '/users': typeof AuthenticatedUsersRoute
   '/vocabulary': typeof AuthenticatedVocabularyRoute
   '/': typeof AuthenticatedIndexRoute
+  '/accounts/$id': typeof AuthenticatedAccountsIdRoute
+  '/accounts': typeof AuthenticatedAccountsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/sign-in': typeof SignInRoute
+  '/_authenticated/accounts': typeof AuthenticatedAccountsRouteWithChildren
   '/_authenticated/change-password': typeof AuthenticatedChangePasswordRoute
   '/_authenticated/grammar': typeof AuthenticatedGrammarRoute
   '/_authenticated/kana': typeof AuthenticatedKanaRoute
@@ -105,12 +130,15 @@ export interface FileRoutesById {
   '/_authenticated/users': typeof AuthenticatedUsersRoute
   '/_authenticated/vocabulary': typeof AuthenticatedVocabularyRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/accounts/$id': typeof AuthenticatedAccountsIdRoute
+  '/_authenticated/accounts/': typeof AuthenticatedAccountsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/sign-in'
+    | '/accounts'
     | '/change-password'
     | '/grammar'
     | '/kana'
@@ -118,6 +146,8 @@ export interface FileRouteTypes {
     | '/roles'
     | '/users'
     | '/vocabulary'
+    | '/accounts/$id'
+    | '/accounts/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/sign-in'
@@ -129,10 +159,13 @@ export interface FileRouteTypes {
     | '/users'
     | '/vocabulary'
     | '/'
+    | '/accounts/$id'
+    | '/accounts'
   id:
     | '__root__'
     | '/_authenticated'
     | '/sign-in'
+    | '/_authenticated/accounts'
     | '/_authenticated/change-password'
     | '/_authenticated/grammar'
     | '/_authenticated/kana'
@@ -141,6 +174,8 @@ export interface FileRouteTypes {
     | '/_authenticated/users'
     | '/_authenticated/vocabulary'
     | '/_authenticated/'
+    | '/_authenticated/accounts/$id'
+    | '/_authenticated/accounts/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -220,10 +255,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedChangePasswordRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/accounts': {
+      id: '/_authenticated/accounts'
+      path: '/accounts'
+      fullPath: '/accounts'
+      preLoaderRoute: typeof AuthenticatedAccountsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/accounts/': {
+      id: '/_authenticated/accounts/'
+      path: '/'
+      fullPath: '/accounts/'
+      preLoaderRoute: typeof AuthenticatedAccountsIndexRouteImport
+      parentRoute: typeof AuthenticatedAccountsRoute
+    }
+    '/_authenticated/accounts/$id': {
+      id: '/_authenticated/accounts/$id'
+      path: '/$id'
+      fullPath: '/accounts/$id'
+      preLoaderRoute: typeof AuthenticatedAccountsIdRouteImport
+      parentRoute: typeof AuthenticatedAccountsRoute
+    }
   }
 }
 
+interface AuthenticatedAccountsRouteChildren {
+  AuthenticatedAccountsIdRoute: typeof AuthenticatedAccountsIdRoute
+  AuthenticatedAccountsIndexRoute: typeof AuthenticatedAccountsIndexRoute
+}
+
+const AuthenticatedAccountsRouteChildren: AuthenticatedAccountsRouteChildren = {
+  AuthenticatedAccountsIdRoute: AuthenticatedAccountsIdRoute,
+  AuthenticatedAccountsIndexRoute: AuthenticatedAccountsIndexRoute,
+}
+
+const AuthenticatedAccountsRouteWithChildren =
+  AuthenticatedAccountsRoute._addFileChildren(
+    AuthenticatedAccountsRouteChildren,
+  )
+
 interface AuthenticatedRouteChildren {
+  AuthenticatedAccountsRoute: typeof AuthenticatedAccountsRouteWithChildren
   AuthenticatedChangePasswordRoute: typeof AuthenticatedChangePasswordRoute
   AuthenticatedGrammarRoute: typeof AuthenticatedGrammarRoute
   AuthenticatedKanaRoute: typeof AuthenticatedKanaRoute
@@ -235,6 +307,7 @@ interface AuthenticatedRouteChildren {
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedAccountsRoute: AuthenticatedAccountsRouteWithChildren,
   AuthenticatedChangePasswordRoute: AuthenticatedChangePasswordRoute,
   AuthenticatedGrammarRoute: AuthenticatedGrammarRoute,
   AuthenticatedKanaRoute: AuthenticatedKanaRoute,
