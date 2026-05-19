@@ -3,11 +3,10 @@ import argon2 from 'argon2'
 import jwt from 'jsonwebtoken'
 import {User} from '../entities/User'
 import {DI} from '../utils/di'
-import {UserRole} from '../enums/auth.enum'
 import {UserOnboarding} from '../entities/UserOnboading'
 
 function generateToken(user: User) {
-  return jwt.sign({id: user.id, role: user.role}, process.env.JWT_SECRET!, {
+  return jwt.sign({id: user.id}, process.env.JWT_SECRET!, {
     expiresIn: '7d',
   })
 }
@@ -37,7 +36,6 @@ export async function register(req: Request, res: Response) {
       username,
       email,
       password: hashed,
-      role: UserRole.USER,
     })
 
     await DI.em.persistAndFlush(user)

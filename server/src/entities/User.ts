@@ -1,33 +1,43 @@
-import {Entity, PrimaryKey, Property, Enum, OneToOne} from '@mikro-orm/core'
-import {v4 as uuid} from 'uuid'
-import {UserRole} from '../enums/auth.enum'
-import {UserOnboarding} from './UserOnboading'
+import { Collection, Entity, Enum, ManyToMany, OneToOne, PrimaryKey, Property } from '@mikro-orm/core'
+import { v4 as uuid } from 'uuid'
+import { GenderEnum } from '../enums/auth.enum'
+import { Role } from './Role'
+import { UserOnboarding } from './UserOnboading'
 
 @Entity()
 export class User {
   @PrimaryKey()
   id: string = uuid()
 
-  @Property({unique: true})
+  @Property({ unique: true })
   email!: string
 
   @Property()
   username!: string
 
-  @Property({nullable: true})
+  @Property({ nullable: true })
   phone_number!: string
 
   @Property()
   password!: string
 
-  @Enum(() => UserRole)
-  role: UserRole = UserRole.USER
-
-  @Property({nullable: true})
+  @Property({ nullable: true })
   avatarUrl?: string
 
-  @Property({onCreate: () => new Date()})
+  @Enum({ items: () => GenderEnum, nullable: true })
+  gender?: GenderEnum
+
+  @Property({ nullable: true, type: 'date' })
+  dateOfBirth?: Date
+
+  @Property({ default: false })
+  mustChangePassword: boolean = false
+
+  @Property({ onCreate: () => new Date() })
   createdAt!: Date
+
+  @ManyToMany(() => Role)
+  roles = new Collection<Role>(this)
 
   @OneToOne(() => UserOnboarding, (onboarding) => onboarding.user, {
     nullable: true,

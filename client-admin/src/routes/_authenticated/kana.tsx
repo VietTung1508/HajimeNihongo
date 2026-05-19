@@ -1,4 +1,14 @@
+import { createFileRoute } from '@tanstack/react-router'
 import Kana from '@/features/kana'
-import {createFileRoute} from '@tanstack/react-router'
+import AccessDenied from '@/components/access-denied'
+import { usePermission } from '@/hooks/use-permission'
 
-export const Route = createFileRoute('/_authenticated/kana')({component: Kana})
+function KanaPage() {
+  const { can } = usePermission()
+  if (!can('kana:view')) return <AccessDenied />
+  return <Kana />
+}
+
+export const Route = createFileRoute('/_authenticated/kana')({
+  component: KanaPage,
+})

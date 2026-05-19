@@ -12,8 +12,10 @@ export interface User {
 
 const API_BASE_URL = env.API_BASE_URL
 const API_TIMEOUT = 30000
-const ACCESS_TOKEN_KEY = 'access_token'
-const USER_KEY = 'user'
+const ACCESS_TOKEN_KEY = 'admin_access_token'
+const USER_KEY = 'admin_user'
+const PERMISSIONS_KEY = 'admin_permissions'
+const MUST_CHANGE_PASSWORD_KEY = 'must_change_password'
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -68,8 +70,59 @@ export const clearAuthData = (): void => {
   try {
     Cookies.remove(ACCESS_TOKEN_KEY)
     Cookies.remove(USER_KEY)
+    Cookies.remove(PERMISSIONS_KEY)
+    Cookies.remove(MUST_CHANGE_PASSWORD_KEY)
   } catch (error) {
     console.error('Error clearing auth data:', error)
+  }
+}
+
+export const getMustChangePassword = (): boolean => {
+  if (typeof window === 'undefined') return false
+  try {
+    return Cookies.get(MUST_CHANGE_PASSWORD_KEY) === 'true'
+  } catch {
+    return false
+  }
+}
+
+export const setMustChangePassword = (value: boolean): void => {
+  if (typeof window === 'undefined') return
+  try {
+    if (value) {
+      Cookies.set(MUST_CHANGE_PASSWORD_KEY, 'true', {
+        expires: env.TOKEN_EXPIRES_IN,
+        secure: env.SECURE_COOKIES,
+        sameSite: 'strict',
+      })
+    } else {
+      Cookies.remove(MUST_CHANGE_PASSWORD_KEY)
+    }
+  } catch (error) {
+    console.error('Error setting must_change_password:', error)
+  }
+}
+
+export const setPermissions = (permissions: string[]): void => {
+  if (typeof window === 'undefined') return
+  try {
+    Cookies.set(PERMISSIONS_KEY, JSON.stringify(permissions), {
+      expires: env.TOKEN_EXPIRES_IN,
+      secure: env.SECURE_COOKIES,
+      sameSite: 'strict',
+    })
+  } catch (error) {
+    console.error('Error setting permissions:', error)
+  }
+}
+
+export const getPermissions = (): string[] => {
+  if (typeof window === 'undefined') return []
+  try {
+    const data = Cookies.get(PERMISSIONS_KEY)
+    return data ? JSON.parse(data) : []
+  } catch {
+    return []
   }
 }
 

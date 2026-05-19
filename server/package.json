@@ -22,7 +22,9 @@
     "enrich:grammar:edewakaru": "ts-node src/scripts/enrich-grammar-from-edewakaru.ts",
     "enrich:grammar:ollama": "ts-node src/scripts/enrich-grammar-from-claude.ts",
     "diagnose:examples": "ts-node src/scripts/diagnose-examples.ts",
-    "examples:fix": "ts-node src/scripts/reimport-examples-optimized.ts"
+    "examples:fix": "ts-node src/scripts/reimport-examples-optimized.ts",
+    "seed:admin": "ts-node -r tsconfig-paths/register src/scripts/seed-admin.ts",
+    "seed:rbac": "ts-node -r tsconfig-paths/register src/scripts/seed-rbac.ts"
   },
   "keywords": [],
   "author": "",

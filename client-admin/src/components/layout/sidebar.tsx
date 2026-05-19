@@ -11,11 +11,13 @@ import {
   Globe,
 } from 'lucide-react'
 import { selectIsCollapsed } from '@/store'
+import { usePermission } from '@/hooks/use-permission'
 import NavItem from './nav-item'
 import NavGroup from './nav-group'
 
 const Sidebar = () => {
   const isCollapsed = useSelector(selectIsCollapsed)
+  const { can } = usePermission()
 
   return (
     <aside
@@ -43,35 +45,49 @@ const Sidebar = () => {
           isCollapsed={isCollapsed}
         />
 
-        <NavGroup icon={<UserCog size={16} />} label="User Settings" isCollapsed={isCollapsed}>
-          <NavItem icon={<Users size={16} />} label="Users" to="/users" isCollapsed={false} />
-          <NavItem icon={<Shield size={16} />} label="Roles" to="/roles" isCollapsed={false} />
-        </NavGroup>
+        {(can('user:view') || can('role:view')) && (
+          <NavGroup icon={<UserCog size={16} />} label="User Settings" isCollapsed={isCollapsed}>
+            {can('user:view') && (
+              <NavItem icon={<Users size={16} />} label="Users" to="/users" isCollapsed={false} />
+            )}
+            {can('role:view') && (
+              <NavItem icon={<Shield size={16} />} label="Roles" to="/roles" isCollapsed={false} />
+            )}
+          </NavGroup>
+        )}
 
-        <NavGroup
-          icon={<GraduationCap size={16} />}
-          label="Learning Content"
-          isCollapsed={isCollapsed}
-        >
-          <NavItem
-            icon={<BookOpen size={16} />}
-            label="Vocabulary"
-            to="/vocabulary"
-            isCollapsed={false}
-          />
-          <NavItem
-            icon={<BookText size={16} />}
-            label="Grammar"
-            to="/grammar"
-            isCollapsed={false}
-          />
-          <NavItem
-            icon={<Languages size={16} />}
-            label="Kana"
-            to="/kana"
-            isCollapsed={false}
-          />
-        </NavGroup>
+        {(can('vocabulary:view') || can('grammar:view') || can('kana:view')) && (
+          <NavGroup
+            icon={<GraduationCap size={16} />}
+            label="Learning Content"
+            isCollapsed={isCollapsed}
+          >
+            {can('vocabulary:view') && (
+              <NavItem
+                icon={<BookOpen size={16} />}
+                label="Vocabulary"
+                to="/vocabulary"
+                isCollapsed={false}
+              />
+            )}
+            {can('grammar:view') && (
+              <NavItem
+                icon={<BookText size={16} />}
+                label="Grammar"
+                to="/grammar"
+                isCollapsed={false}
+              />
+            )}
+            {can('kana:view') && (
+              <NavItem
+                icon={<Languages size={16} />}
+                label="Kana"
+                to="/kana"
+                isCollapsed={false}
+              />
+            )}
+          </NavGroup>
+        )}
 
         <NavItem
           icon={<Globe size={16} />}
