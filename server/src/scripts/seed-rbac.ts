@@ -40,6 +40,19 @@ async function seedRbac() {
     await em.flush()
     console.log(`Seeded account:view permission`)
 
+    // 1c. Upsert write permissions for vocabulary and grammar
+    const writePermKeys = ['vocabulary:write', 'grammar:write']
+    for (const key of writePermKeys) {
+      let perm = await em.findOne(Permission, { key })
+      if (!perm) {
+        perm = em.create(Permission, { key })
+        em.persist(perm)
+      }
+      permissionEntities.push(perm)
+    }
+    await em.flush()
+    console.log('Seeded vocabulary:write and grammar:write permissions')
+
     // 2. Upsert Super Admin role — ensure it exists first, then fetch populated
     const existing = await em.findOne(Role, { name: 'Super Admin' })
     if (!existing) {

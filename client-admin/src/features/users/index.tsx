@@ -5,7 +5,8 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { TableCell, TableRow } from '@/components/ui/table'
+import { DataTable, type TableColumn } from '@/components/core/data-table'
 import { TableToolbar } from '@/components/data-table/toolbar'
 import { TablePagination } from '@/components/data-table/pagination'
 import { adminUsersApi } from '@/lib/api/admin-users-api'
@@ -61,6 +62,13 @@ export default function Users() {
   const isSuperAdmin = (user: AdminUserListItem) =>
     user.roles.some(r => r.name === 'Super Admin')
 
+  const userColumns: TableColumn[] = [
+    { header: 'Name' },
+    { header: 'Email' },
+    { header: 'Roles' },
+    { header: 'Actions', className: 'text-right' },
+  ]
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -84,47 +92,35 @@ export default function Users() {
             onChange={handleSearchChange}
             placeholder="Search by name or email..."
           />
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Roles</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+          <DataTable
+            columns={userColumns}
+            data={paginated}
+            isLoading={isLoading}
+            emptyMessage={search ? 'No users match your search' : 'No users found'}
+            renderRow={(user) => (
+              <TableRow key={user.id}>
+                <TableCell className="font-medium">{user.username}</TableCell>
+                <TableCell>{user.email}</TableCell>
+                <TableCell>
+                  <div className="flex flex-wrap gap-1">
+                    {user.roles.map(r => <Badge key={r.id} variant="outline">{r.name}</Badge>)}
+                  </div>
+                </TableCell>
+                <TableCell className="text-right space-x-1">
+                  {can('user:edit') && (
+                    <Button variant="ghost" size="icon" onClick={() => setEditUser(user)} disabled={isSuperAdmin(user)}>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                  )}
+                  {can('user:delete') && (
+                    <Button variant="ghost" size="icon" onClick={() => deleteMutation.mutate(user.id)} disabled={deleteMutation.isPending || isSuperAdmin(user)}>
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  )}
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow><TableCell colSpan={4} className="h-32 text-center text-muted-foreground">Loading...</TableCell></TableRow>
-              ) : paginated.length === 0 ? (
-                <TableRow><TableCell colSpan={4} className="h-32 text-center text-muted-foreground">
-                  {search ? 'No users match your search' : 'No users found'}
-                </TableCell></TableRow>
-              ) : paginated.map(user => (
-                <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.username}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {user.roles.map(r => <Badge key={r.id} variant="outline">{r.name}</Badge>)}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right space-x-1">
-                    {can('user:edit') && (
-                      <Button variant="ghost" size="icon" onClick={() => setEditUser(user)} disabled={isSuperAdmin(user)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                    )}
-                    {can('user:delete') && (
-                      <Button variant="ghost" size="icon" onClick={() => deleteMutation.mutate(user.id)} disabled={deleteMutation.isPending || isSuperAdmin(user)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+            )}
+          />
           <TablePagination
             total={filtered.length}
             page={page}
