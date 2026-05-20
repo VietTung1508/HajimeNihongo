@@ -1902,12 +1902,12 @@
         },
         "ent_seq": {
           "name": "ent_seq",
-          "type": "int",
+          "type": "bigint",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "mappedType": "integer"
+          "mappedType": "bigint"
         },
         "kanji": {
           "name": "kanji",

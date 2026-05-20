@@ -2,14 +2,34 @@ import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { TableToolbar } from '@/components/data-table/toolbar'
 import { TablePagination } from '@/components/data-table/pagination'
+import { usePermission } from '@/hooks/use-permission'
+import { useGrammar } from '@/hooks/use-grammar'
+import type { GrammarFilters, GrammarListItem } from '@/types/grammar'
+import { GrammarFilters as GrammarFiltersBar } from './grammar-filters'
+import { GrammarTable } from './grammar-table'
+import { GrammarFormModal } from './grammar-form-modal'
 
-const Grammar = () => {
-  const [search, setSearch] = useState('')
-  const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
+interface ModalState {
+  mode: 'create' | 'edit'
+  grammarId: number | null
+  open: boolean
+}
+
+const CLOSED: ModalState = { mode: 'create', grammarId: null, open: false }
+
+export default function Grammar() {
+  const { can } = usePermission()
+  const canCreate = can('grammar:create')
+
+  const [filters, setFilters] = useState<GrammarFilters>({ page: 1, limit: 10 })
+  const [modal, setModal] = useState<ModalState>(CLOSED)
+
+  const { data, isLoading } = useGrammar(filters)
+
+  const openCreate = () => setModal({ mode: 'create', grammarId: null, open: true })
+  const openEdit = (item: GrammarListItem) => setModal({ mode: 'edit', grammarId: item.id, open: true })
+  const closeModal = () => setModal(CLOSED)
 
   return (
     <div className="space-y-6">
@@ -18,9 +38,11 @@ const Grammar = () => {
           <h1 className="text-2xl font-bold tracking-tight">Grammar</h1>
           <p className="text-sm text-muted-foreground">Manage grammar points and example sentences</p>
         </div>
-        <Button size="sm">
-          <Plus /> Add Grammar
-        </Button>
+        {canCreate && (
+          <Button size="sm" onClick={openCreate}>
+            <Plus className="h-4 w-4 mr-1" /> Add Grammar
+          </Button>
+        )}
       </div>
 
       <Card>
@@ -29,34 +51,28 @@ const Grammar = () => {
           <CardDescription>Grammar rules organized by JLPT level</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <TableToolbar
-            value={search}
-            onChange={v => { setSearch(v); setPage(1) }}
-            placeholder="Search grammar..."
+          <GrammarFiltersBar filters={filters} onChange={setFilters} />
+          <GrammarTable
+            data={data?.data ?? []}
+            isLoading={isLoading}
+            onEdit={openEdit}
           />
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Pattern</TableHead>
-                <TableHead>Level</TableHead>
-                <TableHead>Examples</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TableRow>
-                <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
-                  No grammar points found
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-          <TablePagination total={0} page={page} pageSize={pageSize} onPageChange={setPage} onPageSizeChange={setPageSize} />
+          <TablePagination
+            total={data?.total ?? 0}
+            page={filters.page ?? 1}
+            pageSize={filters.limit ?? 10}
+            onPageChange={page => setFilters(f => ({ ...f, page }))}
+            onPageSizeChange={limit => setFilters(f => ({ ...f, limit, page: 1 }))}
+          />
         </CardContent>
       </Card>
+
+      <GrammarFormModal
+        mode={modal.mode}
+        grammarId={modal.grammarId}
+        open={modal.open}
+        onClose={closeModal}
+      />
     </div>
   )
 }
-
-export default Grammar

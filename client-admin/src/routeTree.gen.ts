@@ -20,7 +20,13 @@ import { Route as AuthenticatedKanaRouteImport } from './routes/_authenticated/k
 import { Route as AuthenticatedGrammarRouteImport } from './routes/_authenticated/grammar'
 import { Route as AuthenticatedChangePasswordRouteImport } from './routes/_authenticated/change-password'
 import { Route as AuthenticatedAccountsRouteImport } from './routes/_authenticated/accounts'
+import { Route as AuthenticatedVocabularyIndexRouteImport } from './routes/_authenticated/vocabulary.index'
+import { Route as AuthenticatedKanaIndexRouteImport } from './routes/_authenticated/kana.index'
+import { Route as AuthenticatedGrammarIndexRouteImport } from './routes/_authenticated/grammar.index'
 import { Route as AuthenticatedAccountsIndexRouteImport } from './routes/_authenticated/accounts.index'
+import { Route as AuthenticatedVocabularyIdRouteImport } from './routes/_authenticated/vocabulary.$id'
+import { Route as AuthenticatedKanaIdRouteImport } from './routes/_authenticated/kana.$id'
+import { Route as AuthenticatedGrammarIdRouteImport } from './routes/_authenticated/grammar.$id'
 import { Route as AuthenticatedAccountsIdRouteImport } from './routes/_authenticated/accounts.$id'
 
 const SignInRoute = SignInRouteImport.update({
@@ -78,12 +84,45 @@ const AuthenticatedAccountsRoute = AuthenticatedAccountsRouteImport.update({
   path: '/accounts',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedVocabularyIndexRoute =
+  AuthenticatedVocabularyIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedVocabularyRoute,
+  } as any)
+const AuthenticatedKanaIndexRoute = AuthenticatedKanaIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedKanaRoute,
+} as any)
+const AuthenticatedGrammarIndexRoute =
+  AuthenticatedGrammarIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedGrammarRoute,
+  } as any)
 const AuthenticatedAccountsIndexRoute =
   AuthenticatedAccountsIndexRouteImport.update({
     id: '/',
     path: '/',
     getParentRoute: () => AuthenticatedAccountsRoute,
   } as any)
+const AuthenticatedVocabularyIdRoute =
+  AuthenticatedVocabularyIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedVocabularyRoute,
+  } as any)
+const AuthenticatedKanaIdRoute = AuthenticatedKanaIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedKanaRoute,
+} as any)
+const AuthenticatedGrammarIdRoute = AuthenticatedGrammarIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedGrammarRoute,
+} as any)
 const AuthenticatedAccountsIdRoute = AuthenticatedAccountsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -95,27 +134,36 @@ export interface FileRoutesByFullPath {
   '/sign-in': typeof SignInRoute
   '/accounts': typeof AuthenticatedAccountsRouteWithChildren
   '/change-password': typeof AuthenticatedChangePasswordRoute
-  '/grammar': typeof AuthenticatedGrammarRoute
-  '/kana': typeof AuthenticatedKanaRoute
+  '/grammar': typeof AuthenticatedGrammarRouteWithChildren
+  '/kana': typeof AuthenticatedKanaRouteWithChildren
   '/landing': typeof AuthenticatedLandingRoute
   '/roles': typeof AuthenticatedRolesRoute
   '/users': typeof AuthenticatedUsersRoute
-  '/vocabulary': typeof AuthenticatedVocabularyRoute
+  '/vocabulary': typeof AuthenticatedVocabularyRouteWithChildren
   '/accounts/$id': typeof AuthenticatedAccountsIdRoute
+  '/grammar/$id': typeof AuthenticatedGrammarIdRoute
+  '/kana/$id': typeof AuthenticatedKanaIdRoute
+  '/vocabulary/$id': typeof AuthenticatedVocabularyIdRoute
   '/accounts/': typeof AuthenticatedAccountsIndexRoute
+  '/grammar/': typeof AuthenticatedGrammarIndexRoute
+  '/kana/': typeof AuthenticatedKanaIndexRoute
+  '/vocabulary/': typeof AuthenticatedVocabularyIndexRoute
 }
 export interface FileRoutesByTo {
   '/sign-in': typeof SignInRoute
   '/change-password': typeof AuthenticatedChangePasswordRoute
-  '/grammar': typeof AuthenticatedGrammarRoute
-  '/kana': typeof AuthenticatedKanaRoute
   '/landing': typeof AuthenticatedLandingRoute
   '/roles': typeof AuthenticatedRolesRoute
   '/users': typeof AuthenticatedUsersRoute
-  '/vocabulary': typeof AuthenticatedVocabularyRoute
   '/': typeof AuthenticatedIndexRoute
   '/accounts/$id': typeof AuthenticatedAccountsIdRoute
+  '/grammar/$id': typeof AuthenticatedGrammarIdRoute
+  '/kana/$id': typeof AuthenticatedKanaIdRoute
+  '/vocabulary/$id': typeof AuthenticatedVocabularyIdRoute
   '/accounts': typeof AuthenticatedAccountsIndexRoute
+  '/grammar': typeof AuthenticatedGrammarIndexRoute
+  '/kana': typeof AuthenticatedKanaIndexRoute
+  '/vocabulary': typeof AuthenticatedVocabularyIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -123,15 +171,21 @@ export interface FileRoutesById {
   '/sign-in': typeof SignInRoute
   '/_authenticated/accounts': typeof AuthenticatedAccountsRouteWithChildren
   '/_authenticated/change-password': typeof AuthenticatedChangePasswordRoute
-  '/_authenticated/grammar': typeof AuthenticatedGrammarRoute
-  '/_authenticated/kana': typeof AuthenticatedKanaRoute
+  '/_authenticated/grammar': typeof AuthenticatedGrammarRouteWithChildren
+  '/_authenticated/kana': typeof AuthenticatedKanaRouteWithChildren
   '/_authenticated/landing': typeof AuthenticatedLandingRoute
   '/_authenticated/roles': typeof AuthenticatedRolesRoute
   '/_authenticated/users': typeof AuthenticatedUsersRoute
-  '/_authenticated/vocabulary': typeof AuthenticatedVocabularyRoute
+  '/_authenticated/vocabulary': typeof AuthenticatedVocabularyRouteWithChildren
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/accounts/$id': typeof AuthenticatedAccountsIdRoute
+  '/_authenticated/grammar/$id': typeof AuthenticatedGrammarIdRoute
+  '/_authenticated/kana/$id': typeof AuthenticatedKanaIdRoute
+  '/_authenticated/vocabulary/$id': typeof AuthenticatedVocabularyIdRoute
   '/_authenticated/accounts/': typeof AuthenticatedAccountsIndexRoute
+  '/_authenticated/grammar/': typeof AuthenticatedGrammarIndexRoute
+  '/_authenticated/kana/': typeof AuthenticatedKanaIndexRoute
+  '/_authenticated/vocabulary/': typeof AuthenticatedVocabularyIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -147,20 +201,29 @@ export interface FileRouteTypes {
     | '/users'
     | '/vocabulary'
     | '/accounts/$id'
+    | '/grammar/$id'
+    | '/kana/$id'
+    | '/vocabulary/$id'
     | '/accounts/'
+    | '/grammar/'
+    | '/kana/'
+    | '/vocabulary/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/sign-in'
     | '/change-password'
-    | '/grammar'
-    | '/kana'
     | '/landing'
     | '/roles'
     | '/users'
-    | '/vocabulary'
     | '/'
     | '/accounts/$id'
+    | '/grammar/$id'
+    | '/kana/$id'
+    | '/vocabulary/$id'
     | '/accounts'
+    | '/grammar'
+    | '/kana'
+    | '/vocabulary'
   id:
     | '__root__'
     | '/_authenticated'
@@ -175,7 +238,13 @@ export interface FileRouteTypes {
     | '/_authenticated/vocabulary'
     | '/_authenticated/'
     | '/_authenticated/accounts/$id'
+    | '/_authenticated/grammar/$id'
+    | '/_authenticated/kana/$id'
+    | '/_authenticated/vocabulary/$id'
     | '/_authenticated/accounts/'
+    | '/_authenticated/grammar/'
+    | '/_authenticated/kana/'
+    | '/_authenticated/vocabulary/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -262,12 +331,54 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAccountsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/vocabulary/': {
+      id: '/_authenticated/vocabulary/'
+      path: '/'
+      fullPath: '/vocabulary/'
+      preLoaderRoute: typeof AuthenticatedVocabularyIndexRouteImport
+      parentRoute: typeof AuthenticatedVocabularyRoute
+    }
+    '/_authenticated/kana/': {
+      id: '/_authenticated/kana/'
+      path: '/'
+      fullPath: '/kana/'
+      preLoaderRoute: typeof AuthenticatedKanaIndexRouteImport
+      parentRoute: typeof AuthenticatedKanaRoute
+    }
+    '/_authenticated/grammar/': {
+      id: '/_authenticated/grammar/'
+      path: '/'
+      fullPath: '/grammar/'
+      preLoaderRoute: typeof AuthenticatedGrammarIndexRouteImport
+      parentRoute: typeof AuthenticatedGrammarRoute
+    }
     '/_authenticated/accounts/': {
       id: '/_authenticated/accounts/'
       path: '/'
       fullPath: '/accounts/'
       preLoaderRoute: typeof AuthenticatedAccountsIndexRouteImport
       parentRoute: typeof AuthenticatedAccountsRoute
+    }
+    '/_authenticated/vocabulary/$id': {
+      id: '/_authenticated/vocabulary/$id'
+      path: '/$id'
+      fullPath: '/vocabulary/$id'
+      preLoaderRoute: typeof AuthenticatedVocabularyIdRouteImport
+      parentRoute: typeof AuthenticatedVocabularyRoute
+    }
+    '/_authenticated/kana/$id': {
+      id: '/_authenticated/kana/$id'
+      path: '/$id'
+      fullPath: '/kana/$id'
+      preLoaderRoute: typeof AuthenticatedKanaIdRouteImport
+      parentRoute: typeof AuthenticatedKanaRoute
+    }
+    '/_authenticated/grammar/$id': {
+      id: '/_authenticated/grammar/$id'
+      path: '/$id'
+      fullPath: '/grammar/$id'
+      preLoaderRoute: typeof AuthenticatedGrammarIdRouteImport
+      parentRoute: typeof AuthenticatedGrammarRoute
     }
     '/_authenticated/accounts/$id': {
       id: '/_authenticated/accounts/$id'
@@ -294,27 +405,69 @@ const AuthenticatedAccountsRouteWithChildren =
     AuthenticatedAccountsRouteChildren,
   )
 
+interface AuthenticatedGrammarRouteChildren {
+  AuthenticatedGrammarIdRoute: typeof AuthenticatedGrammarIdRoute
+  AuthenticatedGrammarIndexRoute: typeof AuthenticatedGrammarIndexRoute
+}
+
+const AuthenticatedGrammarRouteChildren: AuthenticatedGrammarRouteChildren = {
+  AuthenticatedGrammarIdRoute: AuthenticatedGrammarIdRoute,
+  AuthenticatedGrammarIndexRoute: AuthenticatedGrammarIndexRoute,
+}
+
+const AuthenticatedGrammarRouteWithChildren =
+  AuthenticatedGrammarRoute._addFileChildren(AuthenticatedGrammarRouteChildren)
+
+interface AuthenticatedKanaRouteChildren {
+  AuthenticatedKanaIdRoute: typeof AuthenticatedKanaIdRoute
+  AuthenticatedKanaIndexRoute: typeof AuthenticatedKanaIndexRoute
+}
+
+const AuthenticatedKanaRouteChildren: AuthenticatedKanaRouteChildren = {
+  AuthenticatedKanaIdRoute: AuthenticatedKanaIdRoute,
+  AuthenticatedKanaIndexRoute: AuthenticatedKanaIndexRoute,
+}
+
+const AuthenticatedKanaRouteWithChildren =
+  AuthenticatedKanaRoute._addFileChildren(AuthenticatedKanaRouteChildren)
+
+interface AuthenticatedVocabularyRouteChildren {
+  AuthenticatedVocabularyIdRoute: typeof AuthenticatedVocabularyIdRoute
+  AuthenticatedVocabularyIndexRoute: typeof AuthenticatedVocabularyIndexRoute
+}
+
+const AuthenticatedVocabularyRouteChildren: AuthenticatedVocabularyRouteChildren =
+  {
+    AuthenticatedVocabularyIdRoute: AuthenticatedVocabularyIdRoute,
+    AuthenticatedVocabularyIndexRoute: AuthenticatedVocabularyIndexRoute,
+  }
+
+const AuthenticatedVocabularyRouteWithChildren =
+  AuthenticatedVocabularyRoute._addFileChildren(
+    AuthenticatedVocabularyRouteChildren,
+  )
+
 interface AuthenticatedRouteChildren {
   AuthenticatedAccountsRoute: typeof AuthenticatedAccountsRouteWithChildren
   AuthenticatedChangePasswordRoute: typeof AuthenticatedChangePasswordRoute
-  AuthenticatedGrammarRoute: typeof AuthenticatedGrammarRoute
-  AuthenticatedKanaRoute: typeof AuthenticatedKanaRoute
+  AuthenticatedGrammarRoute: typeof AuthenticatedGrammarRouteWithChildren
+  AuthenticatedKanaRoute: typeof AuthenticatedKanaRouteWithChildren
   AuthenticatedLandingRoute: typeof AuthenticatedLandingRoute
   AuthenticatedRolesRoute: typeof AuthenticatedRolesRoute
   AuthenticatedUsersRoute: typeof AuthenticatedUsersRoute
-  AuthenticatedVocabularyRoute: typeof AuthenticatedVocabularyRoute
+  AuthenticatedVocabularyRoute: typeof AuthenticatedVocabularyRouteWithChildren
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAccountsRoute: AuthenticatedAccountsRouteWithChildren,
   AuthenticatedChangePasswordRoute: AuthenticatedChangePasswordRoute,
-  AuthenticatedGrammarRoute: AuthenticatedGrammarRoute,
-  AuthenticatedKanaRoute: AuthenticatedKanaRoute,
+  AuthenticatedGrammarRoute: AuthenticatedGrammarRouteWithChildren,
+  AuthenticatedKanaRoute: AuthenticatedKanaRouteWithChildren,
   AuthenticatedLandingRoute: AuthenticatedLandingRoute,
   AuthenticatedRolesRoute: AuthenticatedRolesRoute,
   AuthenticatedUsersRoute: AuthenticatedUsersRoute,
-  AuthenticatedVocabularyRoute: AuthenticatedVocabularyRoute,
+  AuthenticatedVocabularyRoute: AuthenticatedVocabularyRouteWithChildren,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
 }
 

@@ -14,7 +14,7 @@ export class Word {
   @PrimaryKey()
   id!: number
 
-  @Property({unique: true})
+  @Property({ columnType: 'bigint', unique: true })
   entSeq!: number
 
   @Property({nullable: true})

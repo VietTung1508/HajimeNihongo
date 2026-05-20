@@ -32,7 +32,7 @@ export function KanaSidebar({
   }
 
   return (
-    <aside className='w-60 shrink-0 bg-background h-full sticky top-14 overflow-y-auto border border-gray-300 rounded-md'>
+    <aside className='mt-2 w-60 shrink-0 bg-background h-full sticky top-14 overflow-y-auto border border-gray-300 rounded-md'>
       <div className='p-4 space-y-6'>
         {/* Hiragana group */}
         <div>

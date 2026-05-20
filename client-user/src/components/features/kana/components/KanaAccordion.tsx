@@ -23,7 +23,7 @@ export function KanaAccordion({id, title, content}: KanaAccordionProps) {
       </AccordionTrigger>
       <AccordionContent>
         <div
-          className='prose prose-sm max-w-none'
+          className='prose prose-sm max-w-none prose-strong:text-inherit'
           dangerouslySetInnerHTML={{__html: content}}
         />
       </AccordionContent>

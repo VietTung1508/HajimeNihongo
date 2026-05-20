@@ -5,7 +5,8 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { TableCell, TableRow } from '@/components/ui/table'
+import { DataTable, type TableColumn } from '@/components/core/data-table'
 import { TableToolbar } from '@/components/data-table/toolbar'
 import { TablePagination } from '@/components/data-table/pagination'
 import { rolesApi } from '@/lib/api/roles-api'
@@ -66,6 +67,13 @@ export default function Roles() {
 
   const handleSearchChange = (val: string) => { setSearch(val); setPage(1) }
 
+  const roleColumns: TableColumn[] = [
+    { header: 'Role' },
+    { header: 'Permissions' },
+    { header: 'Users' },
+    { header: 'Actions', className: 'text-right' },
+  ]
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -91,72 +99,60 @@ export default function Roles() {
             onChange={handleSearchChange}
             placeholder="Search roles..."
           />
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Role</TableHead>
-                <TableHead>Permissions</TableHead>
-                <TableHead>Users</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow><TableCell colSpan={4} className="h-32 text-center text-muted-foreground">Loading...</TableCell></TableRow>
-              ) : paginated.length === 0 ? (
-                <TableRow><TableCell colSpan={4} className="h-32 text-center text-muted-foreground">
-                  {search ? 'No roles match your search' : 'No roles found'}
-                </TableCell></TableRow>
-              ) : paginated.map(role => (
-                <TableRow key={role.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-2">
-                      {role.isSystem && <Lock className="h-3 w-3 text-muted-foreground" />}
-                      {role.name}
-                      {role.isSystem && <Badge variant="secondary">System</Badge>}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1 max-w-sm">
-                      {role.permissions.length === 0 ? (
-                        <span className="text-muted-foreground text-xs">No permissions</span>
-                      ) : role.permissions.map(p => (
-                        <Badge key={p.key} variant="outline" className="text-xs px-1.5 py-0 font-normal">
-                          {p.key}
-                        </Badge>
-                      ))}
-                    </div>
-                  </TableCell>
-                  <TableCell>{role.userCount}</TableCell>
-                  <TableCell className="text-right space-x-1">
-                    {role.isSystem ? (
-                      <>
-                        <Button variant="ghost" size="icon" disabled title="System roles cannot be edited">
+          <DataTable
+            columns={roleColumns}
+            data={paginated}
+            isLoading={isLoading}
+            emptyMessage={search ? 'No roles match your search' : 'No roles found'}
+            renderRow={(role) => (
+              <TableRow key={role.id}>
+                <TableCell className="font-medium">
+                  <div className="flex items-center gap-2">
+                    {role.isSystem && <Lock className="h-3 w-3 text-muted-foreground" />}
+                    {role.name}
+                    {role.isSystem && <Badge variant="secondary">System</Badge>}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex flex-wrap gap-1 max-w-sm">
+                    {role.permissions.length === 0 ? (
+                      <span className="text-muted-foreground text-xs">No permissions</span>
+                    ) : role.permissions.map(p => (
+                      <Badge key={p.key} variant="outline" className="text-xs px-1.5 py-0 font-normal">
+                        {p.key}
+                      </Badge>
+                    ))}
+                  </div>
+                </TableCell>
+                <TableCell>{role.userCount}</TableCell>
+                <TableCell className="text-right space-x-1">
+                  {role.isSystem ? (
+                    <>
+                      <Button variant="ghost" size="icon" disabled title="System roles cannot be edited">
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" disabled title="System roles cannot be deleted">
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      {can('role:edit') && (
+                        <Button variant="ghost" size="icon" onClick={() => setModalState({ open: true, role })}>
                           <Pencil className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" disabled title="System roles cannot be deleted">
+                      )}
+                      {can('role:delete') && (
+                        <Button variant="ghost" size="icon" onClick={() => deleteMutation.mutate(role.id)} disabled={deleteMutation.isPending}>
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
-                      </>
-                    ) : (
-                      <>
-                        {can('role:edit') && (
-                          <Button variant="ghost" size="icon" onClick={() => setModalState({ open: true, role })}>
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                        )}
-                        {can('role:delete') && (
-                          <Button variant="ghost" size="icon" onClick={() => deleteMutation.mutate(role.id)} disabled={deleteMutation.isPending}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        )}
-                      </>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                      )}
+                    </>
+                  )}
+                </TableCell>
+              </TableRow>
+            )}
+          />
           <TablePagination
             total={filtered.length}
             page={page}
