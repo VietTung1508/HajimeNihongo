@@ -3,7 +3,7 @@ import express from 'express'
 import cors from 'cors'
 import {
   adminAuthRoutes, adminPermissionsRoutes, adminRolesRoutes, adminUsersRoutes, adminAccountsRoutes,
-  adminVocabularyRoutes, adminGrammarRoutes, adminKanaRoutes,
+  adminVocabularyRoutes, adminGrammarRoutes, adminKanaRoutes, adminDashboardRoutes,
   authRoutes, onboardingRoutes, kanaRoutes, grammarRoutes, wordsRoutes,
   audioRoutes, bookmarksRouter, reviewQueueRouter, learnRoutes,
   dashboardRoutes, placementTestRoutes, chatRoutes, landingRoutes,
@@ -42,5 +42,6 @@ app.use('/admin/accounts', adminAccountsRoutes)
 app.use('/admin/vocabulary', adminVocabularyRoutes)
 app.use('/admin/grammar', adminGrammarRoutes)
 app.use('/admin/kana', adminKanaRoutes)
+app.use('/admin/dashboard', adminDashboardRoutes)
 
 setupSwagger(app)

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -18,12 +18,16 @@ interface ModalState {
 
 const CLOSED: ModalState = { mode: 'create', grammarId: null, open: false }
 
-export default function Grammar() {
+export default function Grammar({ autoOpen = false }: { autoOpen?: boolean }) {
   const { can } = usePermission()
   const canCreate = can('grammar:create')
 
   const [filters, setFilters] = useState<GrammarFilters>({ page: 1, limit: 10 })
   const [modal, setModal] = useState<ModalState>(CLOSED)
+
+  useEffect(() => {
+    if (autoOpen && canCreate) setModal({ mode: 'create', grammarId: null, open: true })
+  }, [autoOpen, canCreate])
 
   const { data, isLoading } = useGrammar(filters)
 

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus } from 'lucide-react'
 import { toast } from 'sonner'
@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { TablePagination } from '@/components/data-table/pagination'
 import { ConfirmDialog } from '@/components/core/confirm-dialog'
+import { usePermission } from '@/hooks/use-permission'
 import { useVocabulary } from '@/hooks/use-vocabulary'
 import { adminVocabularyApi } from '@/lib/api/admin-vocabulary-api'
 import type { VocabFilters, VocabListItem } from '@/types/vocabulary'
@@ -14,12 +15,18 @@ import { VocabularyTable } from './vocabulary-table'
 import { VocabularyEditModal } from './vocabulary-edit-modal'
 import { VocabularyCreateModal } from './vocabulary-create-modal'
 
-export default function Vocabulary() {
+export default function Vocabulary({ autoOpen = false }: { autoOpen?: boolean }) {
   const [filters, setFilters] = useState<VocabFilters>({ page: 1, limit: 10 })
   const [editWordId, setEditWordId] = useState<number | null>(null)
   const [editOpen, setEditOpen] = useState(false)
   const [createOpen, setCreateOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<VocabListItem | null>(null)
+
+  const { can } = usePermission()
+  const canVocabCreate = can('vocabulary:create')
+  useEffect(() => {
+    if (autoOpen && canVocabCreate) setCreateOpen(true)
+  }, [autoOpen, canVocabCreate])
 
   const qc = useQueryClient()
   const { data, isLoading } = useVocabulary(filters)
