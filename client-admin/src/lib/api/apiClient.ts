@@ -31,10 +31,12 @@ apiClient.interceptors.request.use((config) => {
 })
 
 // On 401: clear auth data and redirect to sign-in (no refresh)
+// Skip redirect for login endpoint so the form can show the error itself
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const isLoginRequest = error.config?.url?.includes('/admin/auth/login')
+    if (error.response?.status === 401 && !isLoginRequest) {
       clearAuthData()
       window.location.href = '/sign-in'
     }

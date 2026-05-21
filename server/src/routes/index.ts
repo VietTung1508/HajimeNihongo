@@ -6,6 +6,7 @@ import adminAccountsRoutes from './admin-accounts.route'
 import adminVocabularyRoutes from './admin-vocabulary.route'
 import adminGrammarRoutes from './admin-grammar.route'
 import adminKanaRoutes from './admin-kana.route'
+import adminDashboardRoutes from './admin-dashboard.route'
 import authRoutes from './auth.route'
 import onboardingRoutes from './onboarding.route'
 import kanaRoutes from './kana.route'
@@ -22,7 +23,7 @@ import landingRoutes from './landing.route'
 
 export {
   adminAuthRoutes, adminPermissionsRoutes, adminRolesRoutes, adminUsersRoutes, adminAccountsRoutes,
-  adminVocabularyRoutes, adminGrammarRoutes, adminKanaRoutes,
+  adminVocabularyRoutes, adminGrammarRoutes, adminKanaRoutes, adminDashboardRoutes,
   authRoutes, onboardingRoutes, kanaRoutes, grammarRoutes, wordsRoutes,
   audioRoutes, bookmarksRouter, reviewQueueRouter, learnRoutes,
   dashboardRoutes, placementTestRoutes, chatRoutes, landingRoutes,
