@@ -1,4 +1,4 @@
-import {Request, Response} from 'express'
+ import {Request, Response} from 'express'
 import {DI} from '../utils/di'
 import {Word} from '../entities/Word'
 import {PlacementTestService} from '../services/placement-test.service'
@@ -81,11 +81,11 @@ export const getWordList = async (req: Request, res: Response) => {
       // No search query - simple query with filters
       const where: Record<string, unknown> = {}
 
-      // Add level filtering
+      // Explicit level filter: exact match only. No level: include un-tagged words alongside unlocked levels.
       if (requestedJlptLevel !== null) {
         where.jlptLevel = requestedJlptLevel
       } else if (unlockedJlptNumbers.length > 0) {
-        where.jlptLevel = {$in: unlockedJlptNumbers}
+        where.$or = [{jlptLevel: {$in: unlockedJlptNumbers}}, {jlptLevel: null}]
       }
 
       if (isCommonOnly) {
@@ -106,12 +106,12 @@ export const getWordList = async (req: Request, res: Response) => {
       let baseWhere = '(w.kanji ILIKE ? OR w.reading ILIKE ? OR m.text ILIKE ?)'
       let params: Array<string | number> = [term, term, term]
 
-      // Add level filter to WHERE clause
+      // Explicit level filter: exact match only. No level: include un-tagged words alongside unlocked levels.
       if (requestedJlptLevel !== null) {
         baseWhere += ' AND w.jlpt_level = ?'
         params.push(requestedJlptLevel)
       } else if (unlockedJlptNumbers.length > 0) {
-        baseWhere += ` AND w.jlpt_level IN (${unlockedJlptNumbers.map(() => '?').join(', ')})`
+        baseWhere += ` AND (w.jlpt_level IN (${unlockedJlptNumbers.map(() => '?').join(', ')}) OR w.jlpt_level IS NULL)`
         params.push(...unlockedJlptNumbers)
       }
 

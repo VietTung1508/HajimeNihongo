@@ -4,6 +4,7 @@ import {User} from '../entities/User'
 import {onboardingSchema} from '../schemas/onboarding.schema'
 import {UserOnboarding} from '../entities/UserOnboading'
 import {PlacementTest} from '../entities/PlacementTest'
+import {sendWelcomeEmail} from '../services/email.service'
 
 export async function createOnboarding(req: Request, res: Response) {
   try {
@@ -36,6 +37,10 @@ export async function createOnboarding(req: Request, res: Response) {
     })
 
     await DI.em.persistAndFlush(onboarding)
+
+    sendWelcomeEmail(user, onboarding).catch(err =>
+      console.error('[email] Welcome email failed:', err),
+    )
 
     return res.json({
       message: 'Onboarding completed',

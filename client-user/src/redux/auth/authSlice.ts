@@ -56,6 +56,7 @@ export const registerThunk = createAsyncThunk(
       const response = await authApi.register(data)
 
       setAccessToken(response.accessToken)
+      setAlreadyOnboarding(false)
       setUser(response.user)
 
       return response
@@ -106,6 +107,7 @@ const authSlice = createSlice({
       clearAuthData()
       state.isAuthenticated = false
       state.user = null
+      state.alreadyOnboard = false
     },
     setAuthenticated: (state, action) => {
       state.isAuthenticated = action.payload
@@ -157,6 +159,7 @@ const authSlice = createSlice({
         state.loading = false
         state.isAuthenticated = true
         state.user = action.payload.user
+        state.alreadyOnboard = false
       })
       .addCase(registerThunk.rejected, (state, action) => {
         state.loading = false

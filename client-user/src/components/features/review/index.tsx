@@ -41,7 +41,7 @@ export function ReviewMain() {
   const reviewType = typeParam === 'vocab' ? 'word' : typeParam === 'grammar' ? 'grammar' : undefined
 
   const {data: items, isLoading, error} = useReviewItems(reviewType)
-  const {markWord, markGrammar} = useMarkAsMastered()
+  const {markWord, markGrammar, isMarkingWord, isMarkingGrammar} = useMarkAsMastered()
   const {mutate: recordAttempt} = useRecordReviewAttempt()
 
   const [phase, setPhase] = useState<ReviewPhase>('mode-select')
@@ -200,6 +200,7 @@ export function ReviewMain() {
         correct={stats.correct}
         retries={stats.retries}
         masteredItems={masteredItems}
+        isProcessing={isMarkingWord || isMarkingGrammar}
         onBackToDashboard={handleBackToDashboard}
       />
     )

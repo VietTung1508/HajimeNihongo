@@ -132,6 +132,8 @@ async function run() {
     console.log(`  ${rows.length} rows parsed`)
 
     let inserted = 0
+    const toInsert: Grammar[] = []
+
     for (const row of rows) {
       const gp = clean(row.grammar_point)
       if (!gp) continue
@@ -143,9 +145,7 @@ async function run() {
       grammar.grammarPoint = gp
       grammar.meaning = clean(row.meaning) ?? ''
       grammar.level = row.level || level
-      grammar.lessonNumber = row.lesson_number
-        ? parseInt(row.lesson_number, 10)
-        : undefined
+      grammar.lessonNumber = row.lesson_number ? parseInt(row.lesson_number, 10) : undefined
       grammar.lessonTitle = clean(row.lesson_title)
       grammar.structure = clean(row.structure)
       grammar.structureDisplay = clean(row.structure_display)
@@ -158,19 +158,25 @@ async function run() {
       grammar.antonyms = clean(row.antonyms)
       grammar.meaningHint = clean(row.meaning_hint)
 
-      em.persist(grammar)
+      toInsert.push(grammar)
       existingKeys.add(key)
       inserted++
+    }
 
-      // Flush every 100 rows to keep memory manageable
-      if (inserted % 100 === 0) {
-        await em.flush()
-        em.clear()
+    if (toInsert.length > 0) {
+      const batchEm = orm.em.fork()
+      await batchEm.begin()
+      try {
+        for (const g of toInsert) batchEm.persist(g)
+        await batchEm.flush()
+        await batchEm.commit()
+      } catch (err) {
+        await batchEm.rollback()
+        console.error(`  Transaction for ${file} rolled back:`, err)
+        process.exit(1)
       }
     }
 
-    await em.flush()
-    em.clear()
     totalInserted += inserted
     console.log(`  Inserted ${inserted}`)
   }

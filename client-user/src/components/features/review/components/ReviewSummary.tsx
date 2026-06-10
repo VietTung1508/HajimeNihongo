@@ -2,7 +2,7 @@
 
 import {Card, CardContent} from '@/components/ui/card'
 import {Button} from '@/components/ui/button'
-import {CheckCircle, RotateCcw, Home, Award} from 'lucide-react'
+import {CheckCircle, RotateCcw, Home, Award, Loader2} from 'lucide-react'
 import {cn} from '@/lib/utils'
 import {ReviewItem} from '../types'
 
@@ -11,10 +11,11 @@ interface ReviewSummaryProps {
   correct: number
   retries: number
   masteredItems: ReviewItem[]
+  isProcessing?: boolean
   onBackToDashboard: () => void
 }
 
-export function ReviewSummary({total, correct, retries, masteredItems, onBackToDashboard}: ReviewSummaryProps) {
+export function ReviewSummary({total, correct, retries, masteredItems, isProcessing, onBackToDashboard}: ReviewSummaryProps) {
   const accuracy = total > 0 ? Math.min(100, Math.max(0, Math.round((correct / total) * 100))) : 0
   const incorrect = total - correct
 
@@ -157,10 +158,20 @@ export function ReviewSummary({total, correct, retries, masteredItems, onBackToD
           <Button
             size="lg"
             onClick={onBackToDashboard}
+            disabled={isProcessing}
             className="gap-2 bg-gradient-to-r from-[#c74a4a] to-[#d65a5a] text-white shadow-lg shadow-[#c74a4a]/30 hover:from-[#b33d3d] hover:to-[#c74a4a]"
           >
-            <Home className="size-4" />
-            Back to Dashboard
+            {isProcessing ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Home className="size-4" />
+                Back to Dashboard
+              </>
+            )}
           </Button>
         </div>
       </div>

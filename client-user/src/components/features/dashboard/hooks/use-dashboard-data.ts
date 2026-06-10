@@ -23,6 +23,7 @@ export function useStats() {
   return useQuery({
     queryKey: ['dashboard-stats'],
     queryFn: () => dashboardApi.getStats(),
-    staleTime: 5 * 60 * 1000
+    staleTime: 5 * 60 * 1000,
+    refetchOnMount: 'always',
   })
 }
