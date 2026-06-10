@@ -11,48 +11,43 @@ const normalizeArray = (item: any) => {
 }
 
 async function run() {
-  const orm = await MikroORM.init(config)
-  const em = orm.em.fork()
+  // File check before any DB connection
+  if (!fs.existsSync('JMdict_e.xml')) {
+    console.error('ERROR: JMdict_e.xml not found. Run from server/ directory.')
+    process.exit(1)
+  }
 
   console.log('Reading XML...')
   const xml = fs.readFileSync('JMdict_e.xml', 'utf-8')
 
-  const parser = new XMLParser({
-    ignoreAttributes: false,
-    processEntities: false,
-  })
-
+  const parser = new XMLParser({ignoreAttributes: false, processEntities: false})
   console.log('Parsing...')
   const data = parser.parse(xml)
-
   const entries = data.JMdict.entry
 
-  console.log('Transforming...')
+  const orm = await MikroORM.init(config)
+  const em = orm.em.fork()
 
   console.log('Loading existing words...')
-
   const existingWords = await em.find(Word, {}, {fields: ['entSeq']})
   const existingSet = new Set(existingWords.map((w) => w.entSeq))
-
-  console.log('Existing words:', existingSet.size)
+  console.log(`Existing words: ${existingSet.size}`)
 
   const BATCH_SIZE = 500
+  const totalBatches = Math.ceil(entries.length / BATCH_SIZE)
 
   for (let i = 0; i < entries.length; i += BATCH_SIZE) {
+    const batchNum = Math.floor(i / BATCH_SIZE) + 1
     const batch = entries.slice(i, i + BATCH_SIZE)
     const words: Word[] = []
 
     for (const entry of batch) {
       const entSeq = Number(entry.ent_seq)
-
-      // ✅ skip existing
       if (existingSet.has(entSeq)) continue
 
       const kanjiList = normalizeArray(entry.k_ele).map((k: any) => k.keb)
       const readingList = normalizeArray(entry.r_ele).map((r: any) => r.reb)
-
       const senses = normalizeArray(entry.sense)
-
       const meanings = senses
         .flatMap((s: any) =>
           normalizeArray(s.gloss).map((g: any) =>
@@ -77,20 +72,31 @@ async function run() {
       words.push(word)
     }
 
-    if (words.length > 0) {
-      await em.persistAndFlush(words)
-
-      // ✅ VERY IMPORTANT: update set
-      words.forEach((w) => existingSet.add(w.entSeq))
+    if (words.length === 0) {
+      console.log(`[batch ${batchNum}/${totalBatches}] skipped (all existing)`)
+      continue
     }
 
-    em.clear()
-
-    console.log(`Processed ${i + batch.length}`)
+    const batchEm = orm.em.fork()
+    await batchEm.begin()
+    try {
+      for (const w of words) batchEm.persist(w)
+      await batchEm.flush()
+      await batchEm.commit()
+      words.forEach((w) => existingSet.add(w.entSeq))
+      console.log(`[batch ${batchNum}/${totalBatches}] committed ${words.length} words`)
+    } catch (err) {
+      await batchEm.rollback()
+      console.error(`[batch ${batchNum}] rolled back:`, err)
+      process.exit(1)
+    }
   }
 
   console.log('Done!')
   await orm.close(true)
 }
 
-run()
+run().catch(err => {
+  console.error(err)
+  process.exit(1)
+})

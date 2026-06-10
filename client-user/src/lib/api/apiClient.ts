@@ -125,6 +125,7 @@ export const clearAuthData = (): void => {
     Cookies.remove(ACCESS_TOKEN_KEY)
     Cookies.remove(REFRESH_TOKEN_KEY)
     Cookies.remove(USER_KEY)
+    Cookies.remove(ONBOARDING_KEY)
   } catch (error) {
     console.error('Error clearing auth data:', error)
   }

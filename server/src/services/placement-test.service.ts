@@ -217,6 +217,11 @@ export class PlacementTestService {
 
     const unlockedLevels: LevelEnum[] = [onboarding.level]
 
+    // ZERO-level users start from N5 (no grammar exists at ZERO level)
+    if (onboarding.level === LevelEnum.ZERO) {
+      unlockedLevels.push(LevelEnum.N5)
+    }
+
     const masteries = await this.em.find(UserLevelMastery, {
       user: userId,
     })

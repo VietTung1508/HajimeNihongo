@@ -252,41 +252,50 @@ async function run() {
   const orm = await MikroORM.init(config);
   const em = orm.em.fork();
 
-  console.log('Fetching CSV files from GitHub...');
-  const [n5Data, n4Data] = await Promise.all([
-    fetch(
-      'https://raw.githubusercontent.com/SelimJB/jlpt-grammar-cards/main/n5_full_sample.txt',
-    ),
-    fetch(
-      'https://raw.githubusercontent.com/SelimJB/jlpt-grammar-cards/main/n4_full_sample.txt',
-    ),
-  ]);
+  const LEVELS = ['N5', 'N4', 'N3', 'N2', 'N1'] as const;
+  const BASE_URL = 'https://raw.githubusercontent.com/SelimJB/jlpt-grammar-cards/main';
 
-  const n5Rows = parseCsv(n5Data);
-  const n4Rows = parseCsv(n4Data);
+  console.log('Loading CSV files (GitHub → local fallback)...');
 
-  // Build lookup map: multiple normalized keys → CSV row
-  // Each CSV row is stored under multiple keys. The Map iteration in fuzzyFind
-  // deduplicates by checking csvRow via Object identity — but we also need
-  // the Map values to point to the correct full CSV row object.
-  // We use a separate array to keep raw rows for fuzzyFind iteration.
-  const csvRows = new Array<Record<string, string>>();
-  const csvMap = new Map<string, Record<string, string>>();
-  for (const row of [...n5Rows, ...n4Rows]) {
-    const raw = (row['grammar_point'] ?? '').replace(/<[^>]+>/g, '').trim();
-    if (!raw) continue;
-    csvRows.push(row);
-    for (const key of buildMatchKeys(raw)) {
-      if (key) csvMap.set(key, row);
+  async function loadLevel(lvl: string): Promise<{lvl: string; rows: Record<string, string>[]}> {
+    // Try GitHub first
+    try {
+      const data = await fetch(`${BASE_URL}/${lvl.toLowerCase()}_full_sample.txt`);
+      return {lvl, rows: parseCsv(data)};
+    } catch {
+      // Fall back to local file in server/ directory
+      const localPath = `./${lvl.toLowerCase()}_full_sample.txt`;
+      if (require('fs').existsSync(localPath)) {
+        console.log(`  ${lvl}: GitHub 404, using local file`);
+        const data = require('fs').readFileSync(localPath, 'utf8');
+        return {lvl, rows: parseCsv(data)};
+      }
+      console.warn(`  ${lvl}: skipped (no GitHub or local source)`);
+      return {lvl, rows: []};
     }
   }
 
-  console.log(`CSV loaded: N5=${n5Rows.length}, N4=${n4Rows.length}`);
+  const levelData = await Promise.all(LEVELS.map(loadLevel));
+
+  const csvRows = new Array<Record<string, string>>();
+  const csvMap = new Map<string, Record<string, string>>();
+  for (const {lvl, rows} of levelData) {
+    console.log(`  ${lvl}: ${rows.length} rows`);
+    for (const row of rows) {
+      const raw = (row['grammar_point'] ?? '').replace(/<[^>]+>/g, '').trim();
+      if (!raw) continue;
+      csvRows.push(row);
+      for (const key of buildMatchKeys(raw)) {
+        if (key) csvMap.set(key, row);
+      }
+    }
+  }
+
   console.log(`CSV unique normalized keys: ${csvMap.size}`);
 
-  // Load all existing N5/N4 grammar rows from DB
+  // Load all grammar rows from DB (all levels)
   const dbRows = await em.findAll(Grammar, {
-    where: {level: {$in: ['N5', 'N4']}},
+    where: {level: {$in: [...LEVELS]}},
   });
   console.log(`DB rows loaded: ${dbRows.length}`);
 

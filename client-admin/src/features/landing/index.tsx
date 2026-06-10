@@ -21,13 +21,25 @@ const Landing = () => {
   const {data, isLoading} = useLandingData()
   const updatePositions = useUpdateSectionPositions()
   const [sections, setSections] = useState<LandingSection[]>([])
-  const [openSection, setOpenSection] = useState<string | null>(null)
+  const [openSections, setOpenSections] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     if (data?.sections) setSections(data.sections)
   }, [data])
 
-  const toggleSection = (key: string) => setOpenSection(prev => (prev === key ? null : key))
+  const toggleSection = (key: string) =>
+    setOpenSections(prev => {
+      const next = new Set(prev)
+      next.has(key) ? next.delete(key) : next.add(key)
+      return next
+    })
+
+  const closeSection = (key: string) =>
+    setOpenSections(prev => {
+      const next = new Set(prev)
+      next.delete(key)
+      return next
+    })
 
   const handleDragEnd = (event: DragEndEvent) => {
     const {active, over} = event
@@ -61,20 +73,20 @@ const Landing = () => {
                 key={section.sectionKey}
                 id={section.sectionKey}
                 title={SECTION_LABELS[section.sectionKey]}
-                open={openSection === section.sectionKey}
+                open={openSections.has(section.sectionKey)}
                 onToggle={() => toggleSection(section.sectionKey)}
               >
                 {section.sectionKey === 'hero' && (
-                  <HeroSectionForm section={section} onClose={() => setOpenSection(null)} />
+                  <HeroSectionForm section={section} onClose={() => closeSection('hero')} />
                 )}
                 {section.sectionKey === 'testimonials' && (
                   <TestimonialsSection section={section} />
                 )}
                 {section.sectionKey === 'chatbot' && (
-                  <ChatbotSectionForm section={section} onClose={() => setOpenSection(null)} />
+                  <ChatbotSectionForm section={section} onClose={() => closeSection('chatbot')} />
                 )}
                 {section.sectionKey === 'cta' && (
-                  <CtaSectionForm section={section} onClose={() => setOpenSection(null)} />
+                  <CtaSectionForm section={section} onClose={() => closeSection('cta')} />
                 )}
               </DraggableSectionCard>
             ))}

@@ -27,8 +27,10 @@ function isCommonEntry(entry: any): boolean {
 }
 
 async function run() {
-  const orm = await MikroORM.init(config)
-  const em = orm.em.fork()
+  if (!fs.existsSync('JMdict_e.xml')) {
+    console.error('ERROR: JMdict_e.xml not found. Run from server/ directory.')
+    process.exit(1)
+  }
 
   console.log('Reading XML...')
   const xml = fs.readFileSync('JMdict_e.xml', 'utf-8')
@@ -42,6 +44,9 @@ async function run() {
   const data = parser.parse(xml)
 
   const entries = data.JMdict.entry
+
+  const orm = await MikroORM.init(config)
+  const em = orm.em.fork()
 
   console.log('Loading words from DB...')
 
@@ -79,11 +84,18 @@ async function run() {
     }
   }
 
-  await em.flush()
-
-  console.log('Updated common words:', updated)
+  await em.begin()
+  try {
+    await em.flush()
+    await em.commit()
+    console.log('Updated common words:', updated)
+  } catch (err) {
+    await em.rollback()
+    console.error('Transaction rolled back:', err)
+    process.exit(1)
+  }
 
   await orm.close(true)
 }
 
-run()
+run().catch(err => { console.error(err); process.exit(1) })
